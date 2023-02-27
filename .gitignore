@@ -1,0 +1,6 @@
+parser.go
+y.output
+tmp/*
+!tmp/.keep
+cover.out
+coverage.html
