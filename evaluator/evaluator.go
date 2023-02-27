@@ -14,10 +14,11 @@ type Evaluator struct {
 	length int
 	Errors []string
 	pixels [][]color.Color
+	color  color.Color
 }
 
 func New() *Evaluator {
-	return &Evaluator{length: DEFAULT_LENGTH}
+	return &Evaluator{length: DEFAULT_LENGTH, color: color.RGBA{0, 0, 0, 255}}
 }
 
 func (e *Evaluator) Eval(input io.Reader) [][]color.Color {
@@ -53,6 +54,10 @@ func (e *Evaluator) evalStatements(statements []parser.Statement) {
 		switch s := statement.(type) {
 		case *parser.PaperStatement:
 			e.evalPaperStatement(s)
+		case *parser.PenStatement:
+			e.evalPenStatement(s)
+		case *parser.LineStatement:
+			e.evalLineStatement(s)
 		}
 	}
 }
@@ -65,11 +70,18 @@ func (e *Evaluator) evalPaperStatement(statement *parser.PaperStatement) {
 	}
 }
 
+func (e *Evaluator) evalPenStatement(statement *parser.PenStatement) {
+	e.color = evalColor(statement.Value)
+}
+
+func (e *Evaluator) evalLineStatement(statement *parser.LineStatement) {
+}
+
 func evalColor(expression parser.Expression) color.Color {
 	switch e := expression.(type) {
 	case *parser.NumberExpression:
 		num, _ := strconv.Atoi(e.Literal)
-		col := uint8(num * 255 / 100)
+		col := uint8((100 - num) * 255 / 100)
 		return color.RGBA{col, col, col, 255}
 	}
 	return color.RGBA{0, 0, 0, 0}

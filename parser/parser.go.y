@@ -11,14 +11,13 @@ package parser
 
 %type<statements> statements
 
-%type<statement> statement
-%type<statement> command
-%type<statement> paper
+%type<statement> statement command
+%type<statement> paper pen line
 
 %type<expression> expression
 
 %token<token> NUMBER LF
-%token<token> PAPER
+%token<token> PAPER PEN LINE
 
 %%
 
@@ -45,11 +44,25 @@ statement
 
 command
     : paper
+    | pen
+    | line
 
 paper
     : PAPER expression
     {
         $$ = &PaperStatement{Value: $2}
+    }
+
+pen
+    : PEN expression
+    {
+        $$ = &PenStatement{Value: $2}
+    }
+
+line
+    : LINE expression expression expression expression
+    {
+        $$ = &LineStatement{X1: $2, Y1: $3, X2: $4, Y2: $5}
     }
 
 expression

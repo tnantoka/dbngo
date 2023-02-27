@@ -20,6 +20,8 @@ func (l *Lexer) Lex(lval *yySymType) int {
 		switch literal {
 		case "Paper":
 			token = PAPER
+		case "Pen":
+			token = PEN
 		}
 	case '\n':
 		token = LF

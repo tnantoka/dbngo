@@ -28,36 +28,36 @@ func TestSyntax(t *testing.T) {
 		{
 			"Paper 100\n",
 			[][]color.Color{
-				{color.RGBA{255, 255, 255, 255}, color.RGBA{255, 255, 255, 255}},
-				{color.RGBA{255, 255, 255, 255}, color.RGBA{255, 255, 255, 255}},
+				{color.RGBA{0, 0, 0, 255}, color.RGBA{0, 0, 0, 255}},
+				{color.RGBA{0, 0, 0, 255}, color.RGBA{0, 0, 0, 255}},
 			},
 		},
 		{
 			"Paper 100",
 			[][]color.Color{
-				{color.RGBA{255, 255, 255, 255}, color.RGBA{255, 255, 255, 255}},
-				{color.RGBA{255, 255, 255, 255}, color.RGBA{255, 255, 255, 255}},
+				{color.RGBA{0, 0, 0, 255}, color.RGBA{0, 0, 0, 255}},
+				{color.RGBA{0, 0, 0, 255}, color.RGBA{0, 0, 0, 255}},
 			},
 		},
 		{
 			"Paper 100\n\n",
 			[][]color.Color{
-				{color.RGBA{255, 255, 255, 255}, color.RGBA{255, 255, 255, 255}},
-				{color.RGBA{255, 255, 255, 255}, color.RGBA{255, 255, 255, 255}},
+				{color.RGBA{0, 0, 0, 255}, color.RGBA{0, 0, 0, 255}},
+				{color.RGBA{0, 0, 0, 255}, color.RGBA{0, 0, 0, 255}},
 			},
 		},
 		{
 			"Paper 100\nPaper 100\n",
 			[][]color.Color{
-				{color.RGBA{255, 255, 255, 255}, color.RGBA{255, 255, 255, 255}},
-				{color.RGBA{255, 255, 255, 255}, color.RGBA{255, 255, 255, 255}},
+				{color.RGBA{0, 0, 0, 255}, color.RGBA{0, 0, 0, 255}},
+				{color.RGBA{0, 0, 0, 255}, color.RGBA{0, 0, 0, 255}},
 			},
 		},
 		{
 			"Paper 100\n\nPaper 100\n\n\n",
 			[][]color.Color{
-				{color.RGBA{255, 255, 255, 255}, color.RGBA{255, 255, 255, 255}},
-				{color.RGBA{255, 255, 255, 255}, color.RGBA{255, 255, 255, 255}},
+				{color.RGBA{0, 0, 0, 255}, color.RGBA{0, 0, 0, 255}},
+				{color.RGBA{0, 0, 0, 255}, color.RGBA{0, 0, 0, 255}},
 			},
 		},
 	}
@@ -125,8 +125,8 @@ func TestPaper(t *testing.T) {
 		{
 			"Paper 50\nPaper 10",
 			[][]color.Color{
-				{color.RGBA{25, 25, 25, 255}, color.RGBA{25, 25, 25, 255}},
-				{color.RGBA{25, 25, 25, 255}, color.RGBA{25, 25, 25, 255}},
+				{color.RGBA{229, 229, 229, 255}, color.RGBA{229, 229, 229, 255}},
+				{color.RGBA{229, 229, 229, 255}, color.RGBA{229, 229, 229, 255}},
 			},
 		},
 	}
@@ -147,5 +147,43 @@ func TestPaper(t *testing.T) {
 				}
 			}
 		}
+	}
+}
+
+func TestPen(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected color.Color
+	}{
+		{
+			"Pen 50",
+			color.RGBA{127, 127, 127, 255},
+		},
+		{
+			"Pen 50\nPen 10",
+			color.RGBA{229, 229, 229, 255},
+		},
+	}
+
+	for i, test := range tests {
+		e := New()
+		e.length = 2
+		e.Eval(strings.NewReader(test.input))
+
+		if len(e.Errors) > 0 {
+			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
+		}
+
+		if e.color != test.expected {
+			t.Errorf("test %d: expected %v, got %v", i, test.expected, e.color)
+		}
+	}
+}
+
+func TestEvalColor(t *testing.T) {
+	expected := color.RGBA{0, 0, 0, 0}
+	evaluated := evalColor(nil)
+	if evaluated != expected {
+		t.Errorf("expected %v, got %v", expected, evaluated)
 	}
 }
