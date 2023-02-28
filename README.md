@@ -5,7 +5,7 @@ A tiny [Design By Numbers](https://dbn.media.mit.edu/) clone written in Go.
 ## Development
 
 ```
-$ go install golang.org/x/tools/cmd/goyacc
+$ go install golang.org/x/tools/cmd/goyacc@latest
 
 $ goyacc -o parser/parser.go parser/parser.go.y
 
