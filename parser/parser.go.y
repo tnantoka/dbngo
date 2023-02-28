@@ -5,19 +5,19 @@ package parser
 %union{
     statements []Statement
     statement Statement
-    expression  Expression
+    expression Expression
     token Token
 }
 
 %type<statements> statements
 
 %type<statement> statement command
-%type<statement> paper pen line
+%type<statement> paper pen line set
 
 %type<expression> expression
 
-%token<token> NUMBER LF
-%token<token> PAPER PEN LINE
+%token<token> NUMBER LF IDENTIFIER
+%token<token> PAPER PEN LINE SET
 
 %%
 
@@ -46,6 +46,7 @@ command
     : paper
     | pen
     | line
+    | set
 
 paper
     : PAPER expression
@@ -65,10 +66,20 @@ line
         $$ = &LineStatement{X1: $2, Y1: $3, X2: $4, Y2: $5}
     }
 
+set
+    : SET IDENTIFIER expression
+    {
+        $$ = &SetStatement{Name: $2.Literal, Value: $3}
+    }
+
 expression
     : NUMBER
     {
         $$ = &NumberExpression{Literal: $1.Literal}
+    }
+    | IDENTIFIER
+    {
+        $$ = &IdentifierExpression{Literal: $1.Literal}
     }
 %%
 

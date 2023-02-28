@@ -17,6 +17,14 @@ func (ne *NumberExpression) String() string {
 	return ne.Literal
 }
 
+type IdentifierExpression struct {
+	Literal string
+}
+
+func (ie *IdentifierExpression) String() string {
+	return ie.Literal
+}
+
 type Statement interface {
 	String() string
 }
@@ -46,4 +54,13 @@ type LineStatement struct {
 
 func (ls *LineStatement) String() string {
 	return "Line " + ls.X1.String() + " " + ls.Y1.String() + " " + ls.X2.String() + " " + ls.Y2.String()
+}
+
+type SetStatement struct {
+	Name  string
+	Value Expression
+}
+
+func (ss *SetStatement) String() string {
+	return "Set " + ss.Name + " " + ss.Value.String()
 }

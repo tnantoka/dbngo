@@ -24,6 +24,10 @@ func (l *Lexer) Lex(lval *yySymType) int {
 			token = PEN
 		case "Line":
 			token = LINE
+		case "Set":
+			token = SET
+		default:
+			token = IDENTIFIER
 		}
 	case '\n':
 		token = LF

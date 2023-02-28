@@ -42,7 +42,8 @@ func (e *Evaluator) Eval(input io.Reader) image.Image {
 
 	draw.Draw(e.img, e.img.Bounds(), &image.Uniform{color.RGBA{255, 255, 255, 255}}, image.Point{0, 0}, draw.Src)
 
-	e.evalStatements(l.Statements)
+	env := NewEnvironment()
+	e.evalStatements(l.Statements, env)
 
 	return e.scale()
 }
@@ -58,49 +59,64 @@ func (e *Evaluator) scale() image.Image {
 	return scaled
 }
 
-func (e *Evaluator) evalStatements(statements []parser.Statement) {
+func (e *Evaluator) evalStatements(statements []parser.Statement, env *Environment) {
 	for _, statement := range statements {
 		switch s := statement.(type) {
 		case *parser.PaperStatement:
-			e.evalPaperStatement(s)
+			e.evalPaperStatement(s, env)
 		case *parser.PenStatement:
-			e.evalPenStatement(s)
+			e.evalPenStatement(s, env)
 		case *parser.LineStatement:
-			e.evalLineStatement(s)
+			e.evalLineStatement(s, env)
+		case *parser.SetStatement:
+			e.evalSetStatement(s, env)
 		}
 	}
 }
 
-func (e *Evaluator) evalPaperStatement(statement *parser.PaperStatement) {
-	draw.Draw(e.img, e.img.Bounds(), &image.Uniform{evalColor(statement.Value)}, image.Point{0, 0}, draw.Src)
+func (e *Evaluator) evalPaperStatement(statement *parser.PaperStatement, env *Environment) {
+	draw.Draw(e.img, e.img.Bounds(), &image.Uniform{e.evalColor(statement.Value, env)}, image.Point{0, 0}, draw.Src)
 }
 
-func (e *Evaluator) evalPenStatement(statement *parser.PenStatement) {
-	e.color = evalColor(statement.Value)
+func (e *Evaluator) evalPenStatement(statement *parser.PenStatement, env *Environment) {
+	e.color = e.evalColor(statement.Value, env)
 }
 
-func (e *Evaluator) evalLineStatement(statement *parser.LineStatement) {
-	x1 := evalNumber(statement.X1)
-	y1 := 100 - evalNumber(statement.Y1)
-	x2 := evalNumber(statement.X2)
-	y2 := 100 - evalNumber(statement.Y2)
+func (e *Evaluator) evalLineStatement(statement *parser.LineStatement, env *Environment) {
+	x1 := e.evalNumber(statement.X1, env)
+	y1 := 100 - e.evalNumber(statement.Y1, env)
+	x2 := e.evalNumber(statement.X2, env)
+	y2 := 100 - e.evalNumber(statement.Y2, env)
 	bresenham.DrawLine(e.img, x1, y1, x2, y2, e.color)
 }
 
-func evalColor(expression parser.Expression) color.Color {
-	switch e := expression.(type) {
+func (e *Evaluator) evalSetStatement(statement *parser.SetStatement, env *Environment) {
+	switch s := statement.Value.(type) {
 	case *parser.NumberExpression:
-		num := evalNumber(e)
+		env.Set(statement.Name, e.evalNumber(s, env))
+	}
+}
+
+func (e *Evaluator) evalColor(expression parser.Expression, env *Environment) color.Color {
+	switch exp := expression.(type) {
+	case *parser.NumberExpression, *parser.IdentifierExpression:
+		num := e.evalNumber(exp, env)
 		col := uint8((100 - num) * 255 / 100)
 		return color.RGBA{col, col, col, 255}
 	}
 	return color.RGBA{0, 0, 0, 0}
 }
 
-func evalNumber(expression parser.Expression) int {
-	switch e := expression.(type) {
+func (e *Evaluator) evalNumber(expression parser.Expression, env *Environment) int {
+	switch exp := expression.(type) {
 	case *parser.NumberExpression:
-		num, _ := strconv.Atoi(e.Literal)
+		num, _ := strconv.Atoi(exp.Literal)
+		return num
+	case *parser.IdentifierExpression:
+		num, ok := env.Get(exp.Literal)
+		if !ok {
+			e.Errors = append(e.Errors, "Identifier not found: "+exp.Literal)
+		}
 		return num
 	}
 	return 0

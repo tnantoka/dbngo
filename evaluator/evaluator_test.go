@@ -77,6 +77,12 @@ func TestErrors(t *testing.T) {
 				"syntax error",
 			},
 		},
+		{
+			"Paper X\n",
+			[]string{
+				"Identifier not found: X",
+			},
+		},
 	}
 
 	for i, test := range tests {
@@ -186,6 +192,32 @@ func TestPen(t *testing.T) {
 	}
 }
 
+func TestSet(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected color.Color
+	}{
+		{
+			"Set X 50\nPen X",
+			color.RGBA{127, 127, 127, 255},
+		},
+	}
+
+	for i, test := range tests {
+		e := New()
+		e.length = 2
+		e.Eval(strings.NewReader(test.input))
+
+		if len(e.Errors) > 0 {
+			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
+		}
+
+		if e.color != test.expected {
+			t.Errorf("test %d: expected %v, got %v", i, test.expected, e.color)
+		}
+	}
+}
+
 func TestEvalColor(t *testing.T) {
 	tests := []struct {
 		input    fmt.Stringer
@@ -202,7 +234,8 @@ func TestEvalColor(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		evaluated := evalColor(test.input)
+		e := New()
+		evaluated := e.evalColor(test.input, NewEnvironment())
 		if evaluated != test.expected {
 			t.Errorf("test %d: expected %v, got %v", i, test.expected, evaluated)
 		}
@@ -225,7 +258,8 @@ func TestEvalNumber(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		evaluated := evalNumber(test.input)
+		e := New()
+		evaluated := e.evalNumber(test.input, NewEnvironment())
 		if evaluated != test.expected {
 			t.Errorf("test %d: expected %v, got %v", i, test.expected, evaluated)
 		}
