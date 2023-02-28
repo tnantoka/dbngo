@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"github.com/tnantoka/dbngo/evaluator"
-	"github.com/tnantoka/dbngo/renderer"
 )
 
 var input string
@@ -26,14 +25,6 @@ func parseFlags() {
 	}
 }
 
-func openFile(path string) *os.File {
-	file, err := os.Open(path)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return file
-}
-
 func main() {
 	parseFlags()
 
@@ -50,14 +41,14 @@ func main() {
 	defer outputFile.Close()
 
 	e := evaluator.New()
-	pixels := e.Eval(inputFile)
+	e.Scale = scale
+	img := e.Eval(inputFile)
 
 	if len(e.Errors) > 0 {
 		log.Fatal(e.Errors)
 	}
 
-	img := renderer.Render(scale, pixels)
 	if err := png.Encode(outputFile, img); err != nil {
-		log.Fatalf("failed writing image: %s", err)
+		log.Fatalf("failed encoding image: %s", err)
 	}
 }
