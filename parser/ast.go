@@ -64,3 +64,28 @@ type SetStatement struct {
 func (ss *SetStatement) String() string {
 	return "Set " + ss.Name + " " + ss.Value.String()
 }
+
+type BlockStatement struct {
+	Statements []Statement
+}
+
+func (bs *BlockStatement) String() string {
+	var out string
+	out += "{\n"
+	for _, s := range bs.Statements {
+		out += s.String() + "\n"
+	}
+	out += "}"
+	return out
+}
+
+type RepeatStatement struct {
+	Name string
+	From Expression
+	To   Expression
+	Body Statement
+}
+
+func (rs *RepeatStatement) String() string {
+	return "Repeat " + rs.Body.String()
+}

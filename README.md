@@ -11,7 +11,8 @@ $ goyacc -o parser/parser.go parser/parser.go.y
 
 $ go fmt ./...
 
-$ go test ./... -coverprofile=cover.out && \
+$ go test ./... -coverprofile=cover_broken.out && \
+  cat cover_broken.out | grep -v yaccpar | grep -v .y > cover.out && \
   go tool cover -html=cover.out -o coverage.html
 
 $ go run main.go -i testdata/hello.dbn -o tmp/dbngo.png

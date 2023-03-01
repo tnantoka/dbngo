@@ -3,4 +3,5 @@ y.output
 tmp/*
 !tmp/.keep
 cover.out
+cover_broken.out
 coverage.html

@@ -26,9 +26,15 @@ func (l *Lexer) Lex(lval *yySymType) int {
 			token = LINE
 		case "Set":
 			token = SET
+		case "Repeat":
+			token = REPEAT
 		default:
 			token = IDENTIFIER
 		}
+	case '{':
+		token = LBRACE
+	case '}':
+		token = RBRACE
 	case '\n':
 		token = LF
 	case scanner.EOF:

@@ -31,8 +31,6 @@ func (e *Evaluator) Eval(input io.Reader) image.Image {
 	l := new(parser.Lexer)
 	l.Init(input)
 
-	l.Whitespace ^= 1 << '\n'
-
 	parser.Parse(l)
 	e.Errors = l.Errors
 
@@ -70,6 +68,10 @@ func (e *Evaluator) evalStatements(statements []parser.Statement, env *Environme
 			e.evalLineStatement(s, env)
 		case *parser.SetStatement:
 			e.evalSetStatement(s, env)
+		case *parser.BlockStatement:
+			e.evalStatements(s.Statements, env)
+		case *parser.RepeatStatement:
+			e.evalRepeatStatement(s, env)
 		}
 	}
 }
@@ -94,6 +96,13 @@ func (e *Evaluator) evalSetStatement(statement *parser.SetStatement, env *Enviro
 	switch s := statement.Value.(type) {
 	case *parser.NumberExpression:
 		env.Set(statement.Name, e.evalNumber(s, env))
+	}
+}
+
+func (e *Evaluator) evalRepeatStatement(statement *parser.RepeatStatement, env *Environment) {
+	for i := e.evalNumber(statement.From, env); i <= e.evalNumber(statement.To, env); i++ {
+		env.Set(statement.Name, i)
+		e.evalStatements(statement.Body.(*parser.BlockStatement).Statements, env)
 	}
 }
 

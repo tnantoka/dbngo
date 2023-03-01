@@ -9,34 +9,56 @@ package parser
     token Token
 }
 
-%type<statements> statements
+%type<statements> statements body
 
 %type<statement> statement command
-%type<statement> paper pen line set
+%type<statement> paper pen line set repeat
+%type<statement> block
 
 %type<expression> expression
 
 %token<token> NUMBER LF IDENTIFIER
-%token<token> PAPER PEN LINE SET
+%token<token> PAPER PEN LINE SET REPEAT
+%token<token> LBRACE RBRACE
 
 %%
 
 statements
-	: /* empty file */
-	{
-		$$ = nil
-        yylex.(*Lexer).Statements = $$
-	}
-  	| command /* no newline at end of file */
-	{
-		$$ = []Statement{$1}
+    : /* empty file */
+    {
+        $$ = nil
         yylex.(*Lexer).Statements = $$
     }
-	| statement statements
-	{
-		$$ = append([]Statement{$1}, $2...)
+    | command /* no newline at end of file */
+    {
+        $$ = []Statement{$1}
         yylex.(*Lexer).Statements = $$
-	}    
+    }
+    | statement statements
+    {
+        $$ = append([]Statement{$1}, $2...)
+        yylex.(*Lexer).Statements = $$
+    }
+
+block
+    : LBRACE body RBRACE
+    {
+        $$ = &BlockStatement{Statements: $2}
+    }
+
+body
+    : /* empty block */
+    {
+        $$ = []Statement{}
+    }
+    | command /* no newline at end of block */
+    {
+        $$ = []Statement{$1}
+    }
+    | statement body
+    {
+        $$ = append([]Statement{$1}, $2...)
+    }
 
 statement
     : command LF
@@ -47,6 +69,8 @@ command
     | pen
     | line
     | set
+    | block
+    | repeat
 
 paper
     : PAPER expression
@@ -72,6 +96,12 @@ set
         $$ = &SetStatement{Name: $2.Literal, Value: $3}
     }
 
+repeat
+    : REPEAT IDENTIFIER expression expression block
+    {
+        $$ = &RepeatStatement{Name: $2.Literal, From: $3, To: $4, Body: $5}
+    }
+
 expression
     : NUMBER
     {
@@ -82,7 +112,3 @@ expression
         $$ = &IdentifierExpression{Literal: $1.Literal}
     }
 %%
-
-func Parse(yylex yyLexer) int {
-	return yyParse(yylex)
-}
