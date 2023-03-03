@@ -218,6 +218,34 @@ func TestSet(t *testing.T) {
 	}
 }
 
+func TestDot(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{
+			"Set [1 1] 100",
+			"dot.png",
+		},
+	}
+
+	for i, test := range tests {
+		e := New()
+		img := e.Eval(strings.NewReader(test.input))
+
+		if len(e.Errors) > 0 {
+			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
+		}
+
+		actual := imageToBytes(t, img)
+		expected := readBytes(t, "../testdata/"+test.expected)
+
+		if !bytes.Equal(actual, expected) {
+			t.Errorf("test %d: expected %v, but got %v", i, expected, actual)
+		}
+	}
+}
+
 func TestEvalColor(t *testing.T) {
 	tests := []struct {
 		input    fmt.Stringer
@@ -330,6 +358,46 @@ func TestRepeat(t *testing.T) {
 		{
 			"Repeat A 10 20 { Line A 10 A 20 }",
 			"square.png",
+		},
+	}
+
+	for i, test := range tests {
+		e := New()
+		img := e.Eval(strings.NewReader(test.input))
+
+		if len(e.Errors) > 0 {
+			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
+		}
+
+		actual := imageToBytes(t, img)
+		expected := readBytes(t, "../testdata/"+test.expected)
+
+		if !bytes.Equal(actual, expected) {
+			t.Errorf("test %d: expected %v, but got %v", i, expected, actual)
+		}
+	}
+}
+
+func TestCalculate(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{
+			"Paper (10 + 40)",
+			"gray.png",
+		},
+		{
+			"Paper (60 - 10)",
+			"gray.png",
+		},
+		{
+			"Paper (25 * 2)",
+			"gray.png",
+		},
+		{
+			"Paper (100 / 2)",
+			"gray.png",
 		},
 	}
 

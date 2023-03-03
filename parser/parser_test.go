@@ -17,9 +17,13 @@ func TestParser(t *testing.T) {
 			},
 		},
 		{
-			input: "Pen 100",
+			input: "Pen (10 + 10)",
 			expected: []Statement{
-				&PenStatement{Value: &NumberExpression{Literal: "100"}},
+				&PenStatement{Value: &CalculateExpression{
+					Left:     &NumberExpression{Literal: "10"},
+					Operator: "+",
+					Right:    &NumberExpression{Literal: "10"},
+				}},
 			},
 		},
 		{
@@ -38,6 +42,16 @@ func TestParser(t *testing.T) {
 			expected: []Statement{
 				&SetStatement{
 					Name:  "X",
+					Value: &NumberExpression{Literal: "100"},
+				},
+			},
+		},
+		{
+			input: "Set [1 2] 100",
+			expected: []Statement{
+				&DotStatement{
+					X:     &NumberExpression{Literal: "1"},
+					Y:     &NumberExpression{Literal: "2"},
 					Value: &NumberExpression{Literal: "100"},
 				},
 			},

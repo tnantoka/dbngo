@@ -12,14 +12,14 @@ package parser
 %type<statements> statements body
 
 %type<statement> statement command
-%type<statement> paper pen line set repeat
+%type<statement> paper pen line set dot repeat
 %type<statement> block
 
 %type<expression> expression
 
-%token<token> NUMBER LF IDENTIFIER
+%token<token> NUMBER LF IDENTIFIER OPERATOR
 %token<token> PAPER PEN LINE SET REPEAT
-%token<token> LBRACE RBRACE
+%token<token> LBRACE RBRACE LPAREN RPAREN LBRACKET RBRACKET
 
 %%
 
@@ -69,6 +69,7 @@ command
     | pen
     | line
     | set
+    | dot
     | block
     | repeat
 
@@ -96,6 +97,12 @@ set
         $$ = &SetStatement{Name: $2.Literal, Value: $3}
     }
 
+dot
+    : SET LBRACKET expression expression RBRACKET expression
+    {
+        $$ = &DotStatement{X: $3, Y: $4, Value: $6}
+    }
+
 repeat
     : REPEAT IDENTIFIER expression expression block
     {
@@ -110,5 +117,9 @@ expression
     | IDENTIFIER
     {
         $$ = &IdentifierExpression{Literal: $1.Literal}
+    }
+    | LPAREN expression OPERATOR expression RPAREN
+    {
+        $$ = &CalculateExpression{Left: $2, Operator: $3.Literal, Right: $4}
     }
 %%

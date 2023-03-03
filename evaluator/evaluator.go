@@ -72,6 +72,8 @@ func (e *Evaluator) evalStatements(statements []parser.Statement, env *Environme
 			e.evalStatements(s.Statements, env)
 		case *parser.RepeatStatement:
 			e.evalRepeatStatement(s, env)
+		case *parser.DotStatement:
+			e.evalDotStatement(s, env)
 		}
 	}
 }
@@ -99,6 +101,12 @@ func (e *Evaluator) evalSetStatement(statement *parser.SetStatement, env *Enviro
 	}
 }
 
+func (e *Evaluator) evalDotStatement(statement *parser.DotStatement, env *Environment) {
+	x := e.evalNumber(statement.X, env)
+	y := 100 - e.evalNumber(statement.Y, env)
+	e.img.Set(x, y, e.color)
+}
+
 func (e *Evaluator) evalRepeatStatement(statement *parser.RepeatStatement, env *Environment) {
 	for i := e.evalNumber(statement.From, env); i <= e.evalNumber(statement.To, env); i++ {
 		env.Set(statement.Name, i)
@@ -108,7 +116,7 @@ func (e *Evaluator) evalRepeatStatement(statement *parser.RepeatStatement, env *
 
 func (e *Evaluator) evalColor(expression parser.Expression, env *Environment) color.Color {
 	switch exp := expression.(type) {
-	case *parser.NumberExpression, *parser.IdentifierExpression:
+	case *parser.NumberExpression, *parser.IdentifierExpression, *parser.CalculateExpression:
 		num := e.evalNumber(exp, env)
 		col := uint8((100 - num) * 255 / 100)
 		return color.RGBA{col, col, col, 255}
@@ -127,6 +135,19 @@ func (e *Evaluator) evalNumber(expression parser.Expression, env *Environment) i
 			e.Errors = append(e.Errors, "Identifier not found: "+exp.Literal)
 		}
 		return num
+	case *parser.CalculateExpression:
+		left := e.evalNumber(exp.Left, env)
+		right := e.evalNumber(exp.Right, env)
+		switch exp.Operator {
+		case "+":
+			return left + right
+		case "-":
+			return left - right
+		case "*":
+			return left * right
+		case "/":
+			return left / right
+		}
 	}
 	return 0
 }

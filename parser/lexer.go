@@ -35,6 +35,16 @@ func (l *Lexer) Lex(lval *yySymType) int {
 		token = LBRACE
 	case '}':
 		token = RBRACE
+	case '(':
+		token = LPAREN
+	case ')':
+		token = RPAREN
+	case '[':
+		token = LBRACKET
+	case ']':
+		token = RBRACKET
+	case '+', '-', '*', '/':
+		token = OPERATOR
 	case '\n':
 		token = LF
 	case scanner.EOF:

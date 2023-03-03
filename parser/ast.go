@@ -25,6 +25,16 @@ func (ie *IdentifierExpression) String() string {
 	return ie.Literal
 }
 
+type CalculateExpression struct {
+	Left     Expression
+	Operator string
+	Right    Expression
+}
+
+func (ce *CalculateExpression) String() string {
+	return ce.Left.String() + " " + ce.Operator + " " + ce.Right.String()
+}
+
 type Statement interface {
 	String() string
 }
@@ -63,6 +73,16 @@ type SetStatement struct {
 
 func (ss *SetStatement) String() string {
 	return "Set " + ss.Name + " " + ss.Value.String()
+}
+
+type DotStatement struct {
+	X     Expression
+	Y     Expression
+	Value Expression
+}
+
+func (ds *DotStatement) String() string {
+	return "Set [" + ds.X.String() + " " + ds.Y.String() + "] " + ds.Value.String()
 }
 
 type BlockStatement struct {
