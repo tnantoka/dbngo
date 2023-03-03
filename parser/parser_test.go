@@ -57,6 +57,17 @@ func TestParser(t *testing.T) {
 			},
 		},
 		{
+			input: "Set X [1 2]",
+			expected: []Statement{
+				&CopyStatement{
+					Name: "X",
+					X:    &NumberExpression{Literal: "1"},
+					Y:    &NumberExpression{Literal: "2"},
+				},
+			},
+		},
+
+		{
 			input: "Repeat X 0 10 { Pen X }",
 			expected: []Statement{
 				&RepeatStatement{

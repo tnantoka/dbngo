@@ -85,6 +85,16 @@ func (ds *DotStatement) String() string {
 	return "Set [" + ds.X.String() + " " + ds.Y.String() + "] " + ds.Value.String()
 }
 
+type CopyStatement struct {
+	Name string
+	X    Expression
+	Y    Expression
+}
+
+func (cs *CopyStatement) String() string {
+	return "Set " + cs.Name + " [" + cs.X.String() + " " + cs.Y.String() + "]"
+}
+
 type BlockStatement struct {
 	Statements []Statement
 }

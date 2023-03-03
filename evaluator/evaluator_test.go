@@ -179,7 +179,6 @@ func TestPen(t *testing.T) {
 
 	for i, test := range tests {
 		e := New()
-		e.length = 2
 		e.Eval(strings.NewReader(test.input))
 
 		if len(e.Errors) > 0 {
@@ -205,7 +204,6 @@ func TestSet(t *testing.T) {
 
 	for i, test := range tests {
 		e := New()
-		e.length = 2
 		e.Eval(strings.NewReader(test.input))
 
 		if len(e.Errors) > 0 {
@@ -242,6 +240,31 @@ func TestDot(t *testing.T) {
 
 		if !bytes.Equal(actual, expected) {
 			t.Errorf("test %d: expected %v, but got %v", i, expected, actual)
+		}
+	}
+}
+
+func TestCopy(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected color.Color
+	}{
+		{
+			"Set X [1 1]\nPen X",
+			color.RGBA{255, 255, 255, 255},
+		},
+	}
+
+	for i, test := range tests {
+		e := New()
+		e.Eval(strings.NewReader(test.input))
+
+		if len(e.Errors) > 0 {
+			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
+		}
+
+		if e.color != test.expected {
+			t.Errorf("test %d: expected %v, got %v", i, test.expected, e.color)
 		}
 	}
 }

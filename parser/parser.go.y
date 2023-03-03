@@ -12,7 +12,7 @@ package parser
 %type<statements> statements body
 
 %type<statement> statement command
-%type<statement> paper pen line set dot repeat
+%type<statement> paper pen line set dot copy repeat
 %type<statement> block
 
 %type<expression> expression
@@ -70,6 +70,7 @@ command
     | line
     | set
     | dot
+    | copy
     | block
     | repeat
 
@@ -101,6 +102,12 @@ dot
     : SET LBRACKET expression expression RBRACKET expression
     {
         $$ = &DotStatement{X: $3, Y: $4, Value: $6}
+    }
+
+copy
+    : SET IDENTIFIER LBRACKET expression expression RBRACKET
+    {
+        $$ = &CopyStatement{Name: $2.Literal, X: $4, Y: $5}
     }
 
 repeat

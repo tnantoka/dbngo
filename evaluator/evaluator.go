@@ -68,12 +68,14 @@ func (e *Evaluator) evalStatements(statements []parser.Statement, env *Environme
 			e.evalLineStatement(s, env)
 		case *parser.SetStatement:
 			e.evalSetStatement(s, env)
+		case *parser.DotStatement:
+			e.evalDotStatement(s, env)
+		case *parser.CopyStatement:
+			e.evalCopyStatement(s, env)
 		case *parser.BlockStatement:
 			e.evalStatements(s.Statements, env)
 		case *parser.RepeatStatement:
 			e.evalRepeatStatement(s, env)
-		case *parser.DotStatement:
-			e.evalDotStatement(s, env)
 		}
 	}
 }
@@ -105,6 +107,14 @@ func (e *Evaluator) evalDotStatement(statement *parser.DotStatement, env *Enviro
 	x := e.evalNumber(statement.X, env)
 	y := 100 - e.evalNumber(statement.Y, env)
 	e.img.Set(x, y, e.color)
+}
+
+func (e *Evaluator) evalCopyStatement(statement *parser.CopyStatement, env *Environment) {
+	name := statement.Name
+	x := e.evalNumber(statement.X, env)
+	y := 100 - e.evalNumber(statement.Y, env)
+	r, _, _, _ := e.img.At(x, y).RGBA()
+	env.Set(name, int(100-r*100/65535))
 }
 
 func (e *Evaluator) evalRepeatStatement(statement *parser.RepeatStatement, env *Environment) {
