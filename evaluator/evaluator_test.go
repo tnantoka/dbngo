@@ -401,6 +401,61 @@ func TestRepeat(t *testing.T) {
 	}
 }
 
+func TestSame(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{
+			"Same? 1 1 { Line 0 0 100 100 }",
+			"diagonal.png",
+		},
+	}
+
+	for i, test := range tests {
+		e := New()
+		img := e.Eval(strings.NewReader(test.input))
+
+		if len(e.Errors) > 0 {
+			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
+		}
+
+		actual := imageToBytes(t, img)
+		expected := readBytes(t, "../testdata/"+test.expected)
+
+		if !bytes.Equal(actual, expected) {
+			t.Errorf("test %d: expected %v, but got %v", i, expected, actual)
+		}
+	}
+}
+
+func TestNotSame(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{
+			"NotSame? 0 1 { Line 0 0 100 100 }",
+			"diagonal.png",
+		},
+	}
+
+	for i, test := range tests {
+		e := New()
+		img := e.Eval(strings.NewReader(test.input))
+
+		if len(e.Errors) > 0 {
+			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
+		}
+
+		actual := imageToBytes(t, img)
+		expected := readBytes(t, "../testdata/"+test.expected)
+
+		if !bytes.Equal(actual, expected) {
+			t.Errorf("test %d: expected %v, but got %v", i, expected, actual)
+		}
+	}
+}
 func TestCalculate(t *testing.T) {
 	tests := []struct {
 		input    string

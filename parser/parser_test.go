@@ -66,7 +66,6 @@ func TestParser(t *testing.T) {
 				},
 			},
 		},
-
 		{
 			input: "Repeat X 0 10 { Pen X }",
 			expected: []Statement{
@@ -74,6 +73,34 @@ func TestParser(t *testing.T) {
 					Name: "X",
 					From: &NumberExpression{Literal: "0"},
 					To:   &NumberExpression{Literal: "10"},
+					Body: &BlockStatement{
+						Statements: []Statement{
+							&PenStatement{Value: &IdentifierExpression{Literal: "X"}},
+						},
+					},
+				},
+			},
+		},
+		{
+			input: "Same? 0 10 { Pen X }",
+			expected: []Statement{
+				&SameStatement{
+					Left:  &NumberExpression{Literal: "0"},
+					Right: &NumberExpression{Literal: "10"},
+					Body: &BlockStatement{
+						Statements: []Statement{
+							&PenStatement{Value: &IdentifierExpression{Literal: "X"}},
+						},
+					},
+				},
+			},
+		},
+		{
+			input: "NotSame? 0 10 { Pen X }",
+			expected: []Statement{
+				&NotSameStatement{
+					Left:  &NumberExpression{Literal: "0"},
+					Right: &NumberExpression{Literal: "10"},
 					Body: &BlockStatement{
 						Statements: []Statement{
 							&PenStatement{Value: &IdentifierExpression{Literal: "X"}},

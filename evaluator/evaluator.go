@@ -76,6 +76,10 @@ func (e *Evaluator) evalStatements(statements []parser.Statement, env *Environme
 			e.evalStatements(s.Statements, env)
 		case *parser.RepeatStatement:
 			e.evalRepeatStatement(s, env)
+		case *parser.SameStatement:
+			e.evalSameStatement(s, env)
+		case *parser.NotSameStatement:
+			e.evalNotSameStatement(s, env)
 		}
 	}
 }
@@ -120,6 +124,22 @@ func (e *Evaluator) evalCopyStatement(statement *parser.CopyStatement, env *Envi
 func (e *Evaluator) evalRepeatStatement(statement *parser.RepeatStatement, env *Environment) {
 	for i := e.evalNumber(statement.From, env); i <= e.evalNumber(statement.To, env); i++ {
 		env.Set(statement.Name, i)
+		e.evalStatements(statement.Body.(*parser.BlockStatement).Statements, env)
+	}
+}
+
+func (e *Evaluator) evalSameStatement(statement *parser.SameStatement, env *Environment) {
+	left := e.evalNumber(statement.Left, env)
+	right := e.evalNumber(statement.Right, env)
+	if left == right {
+		e.evalStatements(statement.Body.(*parser.BlockStatement).Statements, env)
+	}
+}
+
+func (e *Evaluator) evalNotSameStatement(statement *parser.NotSameStatement, env *Environment) {
+	left := e.evalNumber(statement.Left, env)
+	right := e.evalNumber(statement.Right, env)
+	if left != right {
 		e.evalStatements(statement.Body.(*parser.BlockStatement).Statements, env)
 	}
 }

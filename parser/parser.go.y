@@ -12,13 +12,13 @@ package parser
 %type<statements> statements body
 
 %type<statement> statement command
-%type<statement> paper pen line set dot copy repeat
+%type<statement> paper pen line set dot copy repeat same notsame
 %type<statement> block
 
 %type<expression> expression
 
 %token<token> NUMBER LF IDENTIFIER OPERATOR
-%token<token> PAPER PEN LINE SET REPEAT
+%token<token> PAPER PEN LINE SET REPEAT SAME NOTSAME
 %token<token> LBRACE RBRACE LPAREN RPAREN LBRACKET RBRACKET
 
 %%
@@ -73,6 +73,8 @@ command
     | copy
     | block
     | repeat
+    | same
+    | notsame
 
 paper
     : PAPER expression
@@ -114,6 +116,18 @@ repeat
     : REPEAT IDENTIFIER expression expression block
     {
         $$ = &RepeatStatement{Name: $2.Literal, From: $3, To: $4, Body: $5}
+    }
+
+same
+    : SAME expression expression block
+    {
+        $$ = &SameStatement{Left: $2, Right: $3, Body: $4}
+    }
+
+notsame
+    : NOTSAME expression expression block
+    {
+        $$ = &NotSameStatement{Left: $2, Right: $3, Body: $4}
     }
 
 expression

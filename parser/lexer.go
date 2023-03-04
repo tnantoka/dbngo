@@ -28,6 +28,16 @@ func (l *Lexer) Lex(lval *yySymType) int {
 			token = SET
 		case "Repeat":
 			token = REPEAT
+		case "Same":
+			if l.Peek() == '?' {
+				token = SAME
+				l.Next()
+			}
+		case "NotSame":
+			if l.Peek() == '?' {
+				token = NOTSAME
+				l.Next()
+			}
 		default:
 			token = IDENTIFIER
 		}

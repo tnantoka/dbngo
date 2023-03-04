@@ -18,3 +18,16 @@ Repeat A 0 100 {
     Set [A B] B
   }
 }
+
+Repeat A 0 100 {
+  Same? A 50 {
+    Line A 0 A 100
+  }
+}
+
+Repeat A 0 20 {
+  Pen A
+  NotSame? A 50 {
+    Line A 0 A 100
+  }
+}

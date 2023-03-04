@@ -119,3 +119,23 @@ type RepeatStatement struct {
 func (rs *RepeatStatement) String() string {
 	return "Repeat " + rs.Body.String()
 }
+
+type SameStatement struct {
+	Left  Expression
+	Right Expression
+	Body  Statement
+}
+
+func (ss *SameStatement) String() string {
+	return "Same? " + ss.Left.String() + " " + ss.Right.String() + " " + ss.Body.String()
+}
+
+type NotSameStatement struct {
+	Left  Expression
+	Right Expression
+	Body  Statement
+}
+
+func (ns *NotSameStatement) String() string {
+	return "NotSame? " + ns.Left.String() + " " + ns.Right.String() + " " + ns.Body.String()
+}
