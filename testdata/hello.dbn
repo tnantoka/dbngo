@@ -12,3 +12,9 @@ Repeat C 45 55 {
   Line 45 C 55 (C+10)
   Set [30 A] 100
 }
+
+Repeat A 0 100 {
+  Repeat B 50 55 {
+    Set [A B] B
+  }
+}
