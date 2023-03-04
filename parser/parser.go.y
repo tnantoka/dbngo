@@ -12,13 +12,13 @@ package parser
 %type<statements> statements body
 
 %type<statement> statement command
-%type<statement> paper pen line set dot copy repeat same notsame
+%type<statement> paper pen line set dot copy repeat same notsame smaller notsmaller
 %type<statement> block
 
 %type<expression> expression
 
 %token<token> NUMBER LF IDENTIFIER OPERATOR
-%token<token> PAPER PEN LINE SET REPEAT SAME NOTSAME
+%token<token> PAPER PEN LINE SET REPEAT SAME NOTSAME SMALLER NOTSMALLER
 %token<token> LBRACE RBRACE LPAREN RPAREN LBRACKET RBRACKET
 
 %%
@@ -75,6 +75,8 @@ command
     | repeat
     | same
     | notsame
+    | smaller
+    | notsmaller
 
 paper
     : PAPER expression
@@ -128,6 +130,18 @@ notsame
     : NOTSAME expression expression block
     {
         $$ = &NotSameStatement{Left: $2, Right: $3, Body: $4}
+    }
+
+smaller
+    : SMALLER expression expression block
+    {
+        $$ = &SmallerStatement{Left: $2, Right: $3, Body: $4}
+    }
+
+notsmaller
+    : NOTSMALLER expression expression block
+    {
+        $$ = &NotSmallerStatement{Left: $2, Right: $3, Body: $4}
     }
 
 expression

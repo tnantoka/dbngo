@@ -38,6 +38,16 @@ func (l *Lexer) Lex(lval *yySymType) int {
 				token = NOTSAME
 				l.Next()
 			}
+		case "Smaller":
+			if l.Peek() == '?' {
+				token = SMALLER
+				l.Next()
+			}
+		case "NotSmaller":
+			if l.Peek() == '?' {
+				token = NOTSMALLER
+				l.Next()
+			}
 		default:
 			token = IDENTIFIER
 		}

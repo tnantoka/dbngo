@@ -109,6 +109,34 @@ func TestParser(t *testing.T) {
 				},
 			},
 		},
+		{
+			input: "Smaller? 0 10 { Pen X }",
+			expected: []Statement{
+				&SmallerStatement{
+					Left:  &NumberExpression{Literal: "0"},
+					Right: &NumberExpression{Literal: "10"},
+					Body: &BlockStatement{
+						Statements: []Statement{
+							&PenStatement{Value: &IdentifierExpression{Literal: "X"}},
+						},
+					},
+				},
+			},
+		},
+		{
+			input: "NotSmaller? 0 10 { Pen X }",
+			expected: []Statement{
+				&NotSmallerStatement{
+					Left:  &NumberExpression{Literal: "0"},
+					Right: &NumberExpression{Literal: "10"},
+					Body: &BlockStatement{
+						Statements: []Statement{
+							&PenStatement{Value: &IdentifierExpression{Literal: "X"}},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for i, test := range tests {

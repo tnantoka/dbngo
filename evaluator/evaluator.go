@@ -80,6 +80,10 @@ func (e *Evaluator) evalStatements(statements []parser.Statement, env *Environme
 			e.evalSameStatement(s, env)
 		case *parser.NotSameStatement:
 			e.evalNotSameStatement(s, env)
+		case *parser.SmallerStatement:
+			e.evalSmallerStatement(s, env)
+		case *parser.NotSmallerStatement:
+			e.evalNotSmallerStatement(s, env)
 		}
 	}
 }
@@ -140,6 +144,22 @@ func (e *Evaluator) evalNotSameStatement(statement *parser.NotSameStatement, env
 	left := e.evalNumber(statement.Left, env)
 	right := e.evalNumber(statement.Right, env)
 	if left != right {
+		e.evalStatements(statement.Body.(*parser.BlockStatement).Statements, env)
+	}
+}
+
+func (e *Evaluator) evalSmallerStatement(statement *parser.SmallerStatement, env *Environment) {
+	left := e.evalNumber(statement.Left, env)
+	right := e.evalNumber(statement.Right, env)
+	if left < right {
+		e.evalStatements(statement.Body.(*parser.BlockStatement).Statements, env)
+	}
+}
+
+func (e *Evaluator) evalNotSmallerStatement(statement *parser.NotSmallerStatement, env *Environment) {
+	left := e.evalNumber(statement.Left, env)
+	right := e.evalNumber(statement.Right, env)
+	if left >= right {
 		e.evalStatements(statement.Body.(*parser.BlockStatement).Statements, env)
 	}
 }

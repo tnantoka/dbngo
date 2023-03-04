@@ -27,7 +27,13 @@ Repeat A 0 100 {
 
 Repeat A 0 20 {
   Pen A
-  NotSame? A 50 {
+  Smaller? A 2 {
+    Pen 100
+  }
+  NotSmaller? A 19 {
+    Pen 100
+  }
+  NotSame? A 10 {
     Line A 0 A 100
   }
 }

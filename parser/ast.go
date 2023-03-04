@@ -139,3 +139,23 @@ type NotSameStatement struct {
 func (ns *NotSameStatement) String() string {
 	return "NotSame? " + ns.Left.String() + " " + ns.Right.String() + " " + ns.Body.String()
 }
+
+type SmallerStatement struct {
+	Left  Expression
+	Right Expression
+	Body  Statement
+}
+
+func (ss *SmallerStatement) String() string {
+	return "Smaller? " + ss.Left.String() + " " + ss.Right.String() + " " + ss.Body.String()
+}
+
+type NotSmallerStatement struct {
+	Left  Expression
+	Right Expression
+	Body  Statement
+}
+
+func (ns *NotSmallerStatement) String() string {
+	return "NotSmaller? " + ns.Left.String() + " " + ns.Right.String() + " " + ns.Body.String()
+}
