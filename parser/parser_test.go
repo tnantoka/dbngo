@@ -163,10 +163,10 @@ func TestParser(t *testing.T) {
 			},
 		},
 		{
-			input: "Load a.dbn",
+			input: "Load \"a.dbn\"",
 			expected: []Statement{
 				&LoadStatement{
-					Name: "a.dbn",
+					Path: "a.dbn",
 				},
 			},
 		},

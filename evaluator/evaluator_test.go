@@ -90,13 +90,13 @@ func TestErrors(t *testing.T) {
 			},
 		},
 		{
-			"Load error.dbn\n",
+			"Load \"error.dbn\"\n",
 			[]string{
 				"syntax error",
 			},
 		},
 		{
-			"Load notfound.dbn\n",
+			"Load \"notfound.dbn\"\n",
 			[]string{
 				"open ../testdata/notfound.dbn: no such file or directory",
 			},
@@ -610,7 +610,7 @@ func TestLoad(t *testing.T) {
 		expected string
 	}{
 		{
-			"Load box.dbn\nBox 10 20 10 20",
+			"Load \"box.dbn\"\nBox 10 20 10 20",
 			"square.png",
 		},
 	}

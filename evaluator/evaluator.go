@@ -191,7 +191,7 @@ func (e *Evaluator) evalCallStatement(statement *parser.CallStatement, env *Envi
 }
 
 func (e *Evaluator) evalLoadStatement(statement *parser.LoadStatement, env *Environment) {
-	file, err := os.Open(e.Directory + "/" + statement.Name)
+	file, err := os.Open(e.Directory + "/" + statement.Path)
 	if err != nil {
 		e.Errors = append(e.Errors, err.Error())
 		return

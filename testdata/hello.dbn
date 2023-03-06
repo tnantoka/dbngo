@@ -1,4 +1,6 @@
-Load box.dbn
+Load "box.dbn"
+Load "sub/sub.dbn"
+Load "sub/subsub/subsub.dbn"
 
 Paper 100
 Set A [1 1]

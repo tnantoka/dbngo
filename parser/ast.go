@@ -189,9 +189,9 @@ func (cs *CallStatement) String() string {
 }
 
 type LoadStatement struct {
-	Name string
+	Path string
 }
 
 func (ls *LoadStatement) String() string {
-	return "Load " + ls.Name
+	return "Load \"" + ls.Path + "\""
 }

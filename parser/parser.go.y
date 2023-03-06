@@ -25,7 +25,7 @@ package parser
 %token<token> NUMBER LF IDENTIFIER OPERATOR
 %token<token> PAPER PEN LINE SET REPEAT SAME NOTSAME SMALLER NOTSMALLER COMMAND LOAD
 %token<token> LBRACE RBRACE LPAREN RPAREN LBRACKET RBRACKET
-%token<token> DOT
+%token<token> STRING
 
 %%
 
@@ -186,9 +186,9 @@ arguments
     }
 
 load
-    : LOAD IDENTIFIER DOT DBN
+    : LOAD STRING
     {
-        $$ = &LoadStatement{Name: $2.Literal + ".dbn"}
+        $$ = &LoadStatement{Path: $2.Literal}
     }
 
 expression

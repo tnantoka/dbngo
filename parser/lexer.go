@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"strings"
 	"text/scanner"
 )
 
@@ -16,6 +17,9 @@ func (l *Lexer) Lex(lval *yySymType) int {
 	switch token {
 	case scanner.Int:
 		token = NUMBER
+	case scanner.String:
+		literal = strings.Trim(literal, "\"")
+		token = STRING
 	case scanner.Ident:
 		switch literal {
 		case "Paper":
@@ -52,8 +56,6 @@ func (l *Lexer) Lex(lval *yySymType) int {
 			token = COMMAND
 		case "Load":
 			token = LOAD
-		case "dbn":
-			token = DBN
 		default:
 			token = IDENTIFIER
 		}
@@ -73,12 +75,10 @@ func (l *Lexer) Lex(lval *yySymType) int {
 		token = OPERATOR
 	case '\n':
 		token = LF
-	case '.':
-		token = DOT
 	case scanner.EOF:
 		token = 0
 	}
-	lval.token = Token{Token: token, Literal: l.TokenText()}
+	lval.token = Token{Token: token, Literal: literal}
 
 	return token
 }
