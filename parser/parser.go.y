@@ -7,19 +7,25 @@ package parser
     statement Statement
     expression Expression
     token Token
+    parameters []string
+    arguments []Expression
 }
 
 %type<statements> statements body
 
 %type<statement> statement command
-%type<statement> paper pen line set dot copy repeat same notsame smaller notsmaller
+%type<statement> paper pen line set dot copy repeat same notsame smaller notsmaller function call load
 %type<statement> block
 
 %type<expression> expression
 
+%type<parameters> parameters
+%type<arguments> arguments
+
 %token<token> NUMBER LF IDENTIFIER OPERATOR
-%token<token> PAPER PEN LINE SET REPEAT SAME NOTSAME SMALLER NOTSMALLER
+%token<token> PAPER PEN LINE SET REPEAT SAME NOTSAME SMALLER NOTSMALLER COMMAND LOAD
 %token<token> LBRACE RBRACE LPAREN RPAREN LBRACKET RBRACKET
+%token<token> DOT
 
 %%
 
@@ -77,6 +83,9 @@ command
     | notsame
     | smaller
     | notsmaller
+    | function
+    | call
+    | load
 
 paper
     : PAPER expression
@@ -142,6 +151,44 @@ notsmaller
     : NOTSMALLER expression expression block
     {
         $$ = &NotSmallerStatement{Left: $2, Right: $3, Body: $4}
+    }
+
+function
+    : COMMAND IDENTIFIER parameters block
+    {
+        $$ = &FunctionStatement{Name: $2.Literal, Parameters: $3, Body: $4}
+    }
+
+parameters
+    : /* empty arguments */
+    {
+        $$ = []string{}
+    }
+    | IDENTIFIER parameters
+    {
+        $$ = append([]string{$1.Literal}, $2...)
+    }
+
+call
+    : IDENTIFIER arguments
+    {
+        $$ = &CallStatement{Name: $1.Literal, Arguments: $2}
+    }
+
+arguments
+    : /* empty arguments */
+    {
+        $$ = []Expression{}
+    }
+    | expression arguments
+    {
+        $$ = append([]Expression{$1}, $2...)
+    }
+
+load
+    : LOAD IDENTIFIER DOT DBN
+    {
+        $$ = &LoadStatement{Name: $2.Literal + ".dbn"}
     }
 
 expression

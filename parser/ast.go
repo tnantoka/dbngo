@@ -1,5 +1,9 @@
 package parser
 
+import (
+	"strings"
+)
+
 type Token struct {
 	Token   int
 	Literal string
@@ -158,4 +162,36 @@ type NotSmallerStatement struct {
 
 func (ns *NotSmallerStatement) String() string {
 	return "NotSmaller? " + ns.Left.String() + " " + ns.Right.String() + " " + ns.Body.String()
+}
+
+type FunctionStatement struct {
+	Name       string
+	Body       Statement
+	Parameters []string
+}
+
+func (fs *FunctionStatement) String() string {
+	return "Command " + fs.Name + " " + strings.Join(fs.Parameters, " ") + " " + fs.Body.String()
+}
+
+type CallStatement struct {
+	Name      string
+	Arguments []Expression
+}
+
+func (cs *CallStatement) String() string {
+	var out string
+	out += "Call " + cs.Name
+	for _, a := range cs.Arguments {
+		out += " " + a.String()
+	}
+	return out
+}
+
+type LoadStatement struct {
+	Name string
+}
+
+func (ls *LoadStatement) String() string {
+	return "Load " + ls.Name
 }

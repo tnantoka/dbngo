@@ -137,6 +137,39 @@ func TestParser(t *testing.T) {
 				},
 			},
 		},
+		{
+			input: "Command Test X { Pen X }",
+			expected: []Statement{
+				&FunctionStatement{
+					Name:       "Test",
+					Parameters: []string{"X"},
+					Body: &BlockStatement{
+						Statements: []Statement{
+							&PenStatement{Value: &IdentifierExpression{Literal: "X"}},
+						},
+					},
+				},
+			},
+		},
+		{
+			input: "Test 1",
+			expected: []Statement{
+				&CallStatement{
+					Name: "Test",
+					Arguments: []Expression{
+						&NumberExpression{Literal: "1"},
+					},
+				},
+			},
+		},
+		{
+			input: "Load a.dbn",
+			expected: []Statement{
+				&LoadStatement{
+					Name: "a.dbn",
+				},
+			},
+		},
 	}
 
 	for i, test := range tests {

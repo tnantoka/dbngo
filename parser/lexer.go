@@ -48,6 +48,12 @@ func (l *Lexer) Lex(lval *yySymType) int {
 				token = NOTSMALLER
 				l.Next()
 			}
+		case "Command":
+			token = COMMAND
+		case "Load":
+			token = LOAD
+		case "dbn":
+			token = DBN
 		default:
 			token = IDENTIFIER
 		}
@@ -67,6 +73,8 @@ func (l *Lexer) Lex(lval *yySymType) int {
 		token = OPERATOR
 	case '\n':
 		token = LF
+	case '.':
+		token = DOT
 	case scanner.EOF:
 		token = 0
 	}

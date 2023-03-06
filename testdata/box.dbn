@@ -1,0 +1,6 @@
+Command Box L R T B {
+  Repeat A L R {
+    Line A T A B
+  }
+}
+

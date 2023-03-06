@@ -1,3 +1,5 @@
+Load box.dbn
+
 Paper 100
 Set A [1 1]
 Paper 10
@@ -37,3 +39,5 @@ Repeat A 0 20 {
     Line A 0 A 100
   }
 }
+
+Box 80 90 10 20

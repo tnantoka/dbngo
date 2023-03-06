@@ -4,6 +4,7 @@ import (
 	"image"
 	"image/color"
 	"io"
+	"os"
 	"strconv"
 
 	"github.com/StephaneBunel/bresenham"
@@ -14,15 +15,16 @@ import (
 const DEFAULT_LENGTH = 100
 
 type Evaluator struct {
-	length int
-	Errors []string
-	color  color.Color
-	img    *image.RGBA
-	Scale  int
+	length    int
+	Errors    []string
+	color     color.Color
+	img       *image.RGBA
+	Scale     int
+	Directory string
 }
 
 func New() *Evaluator {
-	return &Evaluator{length: DEFAULT_LENGTH, color: color.RGBA{0, 0, 0, 255}, Scale: 1}
+	return &Evaluator{length: DEFAULT_LENGTH, color: color.RGBA{0, 0, 0, 255}, Scale: 1, Directory: ""}
 }
 
 func (e *Evaluator) Eval(input io.Reader) image.Image {
@@ -84,6 +86,12 @@ func (e *Evaluator) evalStatements(statements []parser.Statement, env *Environme
 			e.evalSmallerStatement(s, env)
 		case *parser.NotSmallerStatement:
 			e.evalNotSmallerStatement(s, env)
+		case *parser.FunctionStatement:
+			e.evalFunctionStatement(s, env)
+		case *parser.CallStatement:
+			e.evalCallStatement(s, env)
+		case *parser.LoadStatement:
+			e.evalLoadStatement(s, env)
 		}
 	}
 }
@@ -164,6 +172,44 @@ func (e *Evaluator) evalNotSmallerStatement(statement *parser.NotSmallerStatemen
 	}
 }
 
+func (e *Evaluator) evalFunctionStatement(statement *parser.FunctionStatement, env *Environment) {
+	env.Set(statement.Name, statement)
+}
+
+func (e *Evaluator) evalCallStatement(statement *parser.CallStatement, env *Environment) {
+	fun, ok := env.Get(statement.Name)
+	if !ok {
+		e.Errors = append(e.Errors, "Function not found: "+statement.Name)
+		return
+	}
+	funStatement := fun.(*parser.FunctionStatement)
+	newEnv := NewEnclosedEnvironment(env)
+	for i, arg := range statement.Arguments {
+		newEnv.Set(funStatement.Parameters[i], e.evalNumber(arg, env))
+	}
+	e.evalStatements(funStatement.Body.(*parser.BlockStatement).Statements, newEnv)
+}
+
+func (e *Evaluator) evalLoadStatement(statement *parser.LoadStatement, env *Environment) {
+	file, err := os.Open(e.Directory + "/" + statement.Name)
+	if err != nil {
+		e.Errors = append(e.Errors, err.Error())
+		return
+	}
+
+	l := new(parser.Lexer)
+	l.Init(file)
+
+	parser.Parse(l)
+	e.Errors = append(e.Errors, l.Errors...)
+
+	if len(l.Errors) > 0 {
+		return
+	}
+
+	e.evalStatements(l.Statements, env)
+}
+
 func (e *Evaluator) evalColor(expression parser.Expression, env *Environment) color.Color {
 	switch exp := expression.(type) {
 	case *parser.NumberExpression, *parser.IdentifierExpression, *parser.CalculateExpression:
@@ -181,10 +227,11 @@ func (e *Evaluator) evalNumber(expression parser.Expression, env *Environment) i
 		return num
 	case *parser.IdentifierExpression:
 		num, ok := env.Get(exp.Literal)
-		if !ok {
+		if !ok || num == nil {
 			e.Errors = append(e.Errors, "Identifier not found: "+exp.Literal)
+			return 0
 		}
-		return num
+		return num.(int)
 	case *parser.CalculateExpression:
 		left := e.evalNumber(exp.Left, env)
 		right := e.evalNumber(exp.Right, env)

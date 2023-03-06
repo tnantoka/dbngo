@@ -5,6 +5,7 @@ import (
 	"image/png"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/tnantoka/dbngo/evaluator"
 )
@@ -42,6 +43,7 @@ func main() {
 
 	e := evaluator.New()
 	e.Scale = scale
+	e.Directory = filepath.Dir(filepath.Clean(input))
 	img := e.Eval(inputFile)
 
 	if len(e.Errors) > 0 {

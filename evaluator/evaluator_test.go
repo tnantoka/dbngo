@@ -83,10 +83,29 @@ func TestErrors(t *testing.T) {
 				"Identifier not found: X",
 			},
 		},
+		{
+			"Func X\n",
+			[]string{
+				"Function not found: Func",
+			},
+		},
+		{
+			"Load error.dbn\n",
+			[]string{
+				"syntax error",
+			},
+		},
+		{
+			"Load notfound.dbn\n",
+			[]string{
+				"open ../testdata/notfound.dbn: no such file or directory",
+			},
+		},
 	}
 
 	for i, test := range tests {
 		e := New()
+		e.Directory = "../testdata"
 		e.Eval(strings.NewReader(test.input))
 
 		if len(e.Errors) != len(test.expected) {
@@ -538,6 +557,67 @@ func TestCalculate(t *testing.T) {
 
 	for i, test := range tests {
 		e := New()
+		img := e.Eval(strings.NewReader(test.input))
+
+		if len(e.Errors) > 0 {
+			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
+		}
+
+		actual := imageToBytes(t, img)
+		expected := readBytes(t, "../testdata/"+test.expected)
+
+		if !bytes.Equal(actual, expected) {
+			t.Errorf("test %d: expected %v, but got %v", i, expected, actual)
+		}
+	}
+}
+
+func TestFunction(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{
+			"Command Box L R T B { Repeat A L R { Line A T A B } }\nBox 10 20 10 20",
+			"square.png",
+		},
+		{
+			"Set B 20\nCommand Box L R T { Repeat A L R { Line A T A B } }\nBox 10 20 10",
+			"square.png",
+		},
+	}
+
+	for i, test := range tests {
+		e := New()
+		img := e.Eval(strings.NewReader(test.input))
+
+		if len(e.Errors) > 0 {
+			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
+		}
+
+		actual := imageToBytes(t, img)
+		expected := readBytes(t, "../testdata/"+test.expected)
+
+		if !bytes.Equal(actual, expected) {
+			t.Errorf("test %d: expected %v, but got %v", i, expected, actual)
+		}
+	}
+}
+
+func TestLoad(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{
+			"Load box.dbn\nBox 10 20 10 20",
+			"square.png",
+		},
+	}
+
+	for i, test := range tests {
+		e := New()
+		e.Directory = "../testdata"
 		img := e.Eval(strings.NewReader(test.input))
 
 		if len(e.Errors) > 0 {
