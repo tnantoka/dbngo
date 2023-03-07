@@ -61,38 +61,44 @@ func (e *Evaluator) scale() image.Image {
 
 func (e *Evaluator) evalStatements(statements []parser.Statement, env *Environment) {
 	for _, statement := range statements {
-		switch s := statement.(type) {
-		case *parser.PaperStatement:
-			e.evalPaperStatement(s, env)
-		case *parser.PenStatement:
-			e.evalPenStatement(s, env)
-		case *parser.LineStatement:
-			e.evalLineStatement(s, env)
-		case *parser.SetStatement:
-			e.evalSetStatement(s, env)
-		case *parser.DotStatement:
-			e.evalDotStatement(s, env)
-		case *parser.CopyStatement:
-			e.evalCopyStatement(s, env)
-		case *parser.BlockStatement:
-			e.evalStatements(s.Statements, env)
-		case *parser.RepeatStatement:
-			e.evalRepeatStatement(s, env)
-		case *parser.SameStatement:
-			e.evalSameStatement(s, env)
-		case *parser.NotSameStatement:
-			e.evalNotSameStatement(s, env)
-		case *parser.SmallerStatement:
-			e.evalSmallerStatement(s, env)
-		case *parser.NotSmallerStatement:
-			e.evalNotSmallerStatement(s, env)
-		case *parser.FunctionStatement:
-			e.evalFunctionStatement(s, env)
-		case *parser.CallStatement:
-			e.evalCallStatement(s, env)
-		case *parser.LoadStatement:
-			e.evalLoadStatement(s, env)
-		}
+		e.evalStatement(statement, env)
+	}
+}
+
+func (e *Evaluator) evalStatement(statement parser.Statement, env *Environment) {
+	switch s := statement.(type) {
+	case *parser.PaperStatement:
+		e.evalPaperStatement(s, env)
+	case *parser.PenStatement:
+		e.evalPenStatement(s, env)
+	case *parser.LineStatement:
+		e.evalLineStatement(s, env)
+	case *parser.SetStatement:
+		e.evalSetStatement(s, env)
+	case *parser.DotStatement:
+		e.evalDotStatement(s, env)
+	case *parser.CopyStatement:
+		e.evalCopyStatement(s, env)
+	case *parser.BlockStatement:
+		e.evalStatements(s.Statements, env)
+	case *parser.RepeatStatement:
+		e.evalRepeatStatement(s, env)
+	case *parser.SameStatement:
+		e.evalSameStatement(s, env)
+	case *parser.NotSameStatement:
+		e.evalNotSameStatement(s, env)
+	case *parser.SmallerStatement:
+		e.evalSmallerStatement(s, env)
+	case *parser.NotSmallerStatement:
+		e.evalNotSmallerStatement(s, env)
+	case *parser.DefineCommandStatement:
+		e.evalDefineCommandStatement(s, env)
+	case *parser.CallCommandStatement:
+		e.evalCallCommandStatement(s, env)
+	case *parser.LoadStatement:
+		e.evalLoadStatement(s, env)
+	case *parser.DefineNumberStatement:
+		e.evalDefineNumberStatement(s, env)
 	}
 }
 
@@ -113,10 +119,7 @@ func (e *Evaluator) evalLineStatement(statement *parser.LineStatement, env *Envi
 }
 
 func (e *Evaluator) evalSetStatement(statement *parser.SetStatement, env *Environment) {
-	switch s := statement.Value.(type) {
-	case *parser.NumberExpression:
-		env.Set(statement.Name, e.evalNumber(s, env))
-	}
+	env.Set(statement.Name, e.evalNumber(statement.Value, env))
 }
 
 func (e *Evaluator) evalDotStatement(statement *parser.DotStatement, env *Environment) {
@@ -172,17 +175,17 @@ func (e *Evaluator) evalNotSmallerStatement(statement *parser.NotSmallerStatemen
 	}
 }
 
-func (e *Evaluator) evalFunctionStatement(statement *parser.FunctionStatement, env *Environment) {
+func (e *Evaluator) evalDefineCommandStatement(statement *parser.DefineCommandStatement, env *Environment) {
 	env.Set(statement.Name, statement)
 }
 
-func (e *Evaluator) evalCallStatement(statement *parser.CallStatement, env *Environment) {
+func (e *Evaluator) evalCallCommandStatement(statement *parser.CallCommandStatement, env *Environment) {
 	fun, ok := env.Get(statement.Name)
 	if !ok {
-		e.Errors = append(e.Errors, "Function not found: "+statement.Name)
+		e.Errors = append(e.Errors, "Command not found: "+statement.Name)
 		return
 	}
-	funStatement := fun.(*parser.FunctionStatement)
+	funStatement := fun.(*parser.DefineCommandStatement)
 	newEnv := NewEnclosedEnvironment(env)
 	for i, arg := range statement.Arguments {
 		newEnv.Set(funStatement.Parameters[i], e.evalNumber(arg, env))
@@ -210,9 +213,13 @@ func (e *Evaluator) evalLoadStatement(statement *parser.LoadStatement, env *Envi
 	e.evalStatements(l.Statements, env)
 }
 
+func (e *Evaluator) evalDefineNumberStatement(statement *parser.DefineNumberStatement, env *Environment) {
+	env.Set(statement.Name, statement)
+}
+
 func (e *Evaluator) evalColor(expression parser.Expression, env *Environment) color.Color {
 	switch exp := expression.(type) {
-	case *parser.NumberExpression, *parser.IdentifierExpression, *parser.CalculateExpression:
+	case *parser.IntegerExpression, *parser.IdentifierExpression, *parser.CalculateExpression, *parser.CallNumberExpression:
 		num := e.evalNumber(exp, env)
 		col := uint8((100 - num) * 255 / 100)
 		return color.RGBA{col, col, col, 255}
@@ -222,7 +229,7 @@ func (e *Evaluator) evalColor(expression parser.Expression, env *Environment) co
 
 func (e *Evaluator) evalNumber(expression parser.Expression, env *Environment) int {
 	switch exp := expression.(type) {
-	case *parser.NumberExpression:
+	case *parser.IntegerExpression:
 		num, _ := strconv.Atoi(exp.Literal)
 		return num
 	case *parser.IdentifierExpression:
@@ -244,6 +251,25 @@ func (e *Evaluator) evalNumber(expression parser.Expression, env *Environment) i
 			return left * right
 		case "/":
 			return left / right
+		}
+	case *parser.CallNumberExpression:
+		fun, ok := env.Get(exp.Name)
+		if !ok {
+			e.Errors = append(e.Errors, "Number not found: "+exp.Name)
+			return 0
+		}
+		funStatement := fun.(*parser.DefineNumberStatement)
+		newEnv := NewEnclosedEnvironment(env)
+		for i, arg := range exp.Arguments {
+			newEnv.Set(funStatement.Parameters[i], e.evalNumber(arg, env))
+		}
+		for _, s := range funStatement.Body.(*parser.BlockStatement).Statements {
+			vs, ok := s.(*parser.ValueStatement)
+			if ok {
+				return e.evalNumber(vs.Result, newEnv)
+			} else {
+				e.evalStatement(s, newEnv)
+			}
 		}
 	}
 	return 0

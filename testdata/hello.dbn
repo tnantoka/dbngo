@@ -4,7 +4,12 @@ Load "sub/subsub/subsub.dbn"
 
 Paper 100
 Set A [1 1]
-Paper 10
+
+Number Invert A {
+  Value (100 - A)
+}
+
+Paper <Invert 90>
 Pen A
 Set B 20
 Line B 30 200 300

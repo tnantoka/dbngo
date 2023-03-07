@@ -86,7 +86,7 @@ func TestErrors(t *testing.T) {
 		{
 			"Func X\n",
 			[]string{
-				"Function not found: Func",
+				"Command not found: Func",
 			},
 		},
 		{
@@ -99,6 +99,12 @@ func TestErrors(t *testing.T) {
 			"Load \"notfound.dbn\"\n",
 			[]string{
 				"open ../testdata/notfound.dbn: no such file or directory",
+			},
+		},
+		{
+			"Paper <Test>",
+			[]string{
+				"Number not found: Test",
 			},
 		},
 	}
@@ -298,7 +304,7 @@ func TestEvalColor(t *testing.T) {
 			color.RGBA{0, 0, 0, 0},
 		},
 		{
-			&parser.NumberExpression{Literal: "10"},
+			&parser.IntegerExpression{Literal: "10"},
 			color.RGBA{229, 229, 229, 255},
 		},
 	}
@@ -322,7 +328,7 @@ func TestEvalNumber(t *testing.T) {
 			0,
 		},
 		{
-			&parser.NumberExpression{Literal: "10"},
+			&parser.IntegerExpression{Literal: "10"},
 			10,
 		},
 	}
@@ -572,7 +578,7 @@ func TestCalculate(t *testing.T) {
 	}
 }
 
-func TestFunction(t *testing.T) {
+func TestCommand(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected string
@@ -584,6 +590,10 @@ func TestFunction(t *testing.T) {
 		{
 			"Set B 20\nCommand Box L R T { Repeat A L R { Line A T A B } }\nBox 10 20 10",
 			"square.png",
+		},
+		{
+			"Command Test { Set A 50\nPaper A }\nTest",
+			"gray.png",
 		},
 	}
 
@@ -618,6 +628,34 @@ func TestLoad(t *testing.T) {
 	for i, test := range tests {
 		e := New()
 		e.Directory = "../testdata"
+		img := e.Eval(strings.NewReader(test.input))
+
+		if len(e.Errors) > 0 {
+			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
+		}
+
+		actual := imageToBytes(t, img)
+		expected := readBytes(t, "../testdata/"+test.expected)
+
+		if !bytes.Equal(actual, expected) {
+			t.Errorf("test %d: expected %v, but got %v", i, expected, actual)
+		}
+	}
+}
+
+func TestNumber(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{
+			"Number Test A { Set B (A + 25)\nValue B }\nPaper <Test 25>",
+			"gray.png",
+		},
+	}
+
+	for i, test := range tests {
+		e := New()
 		img := e.Eval(strings.NewReader(test.input))
 
 		if len(e.Errors) > 0 {

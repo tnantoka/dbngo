@@ -13,11 +13,11 @@ type Expression interface {
 	String() string
 }
 
-type NumberExpression struct {
+type IntegerExpression struct {
 	Literal string
 }
 
-func (ne *NumberExpression) String() string {
+func (ne *IntegerExpression) String() string {
 	return ne.Literal
 }
 
@@ -37,6 +37,21 @@ type CalculateExpression struct {
 
 func (ce *CalculateExpression) String() string {
 	return ce.Left.String() + " " + ce.Operator + " " + ce.Right.String()
+}
+
+type CallNumberExpression struct {
+	Name      string
+	Arguments []Expression
+}
+
+func (ce *CallNumberExpression) String() string {
+	var out string = "<"
+	out += ce.Name
+	for _, a := range ce.Arguments {
+		out += " " + a.String()
+	}
+	out += ">"
+	return out
 }
 
 type Statement interface {
@@ -164,24 +179,24 @@ func (ns *NotSmallerStatement) String() string {
 	return "NotSmaller? " + ns.Left.String() + " " + ns.Right.String() + " " + ns.Body.String()
 }
 
-type FunctionStatement struct {
+type DefineCommandStatement struct {
 	Name       string
 	Body       Statement
 	Parameters []string
 }
 
-func (fs *FunctionStatement) String() string {
+func (fs *DefineCommandStatement) String() string {
 	return "Command " + fs.Name + " " + strings.Join(fs.Parameters, " ") + " " + fs.Body.String()
 }
 
-type CallStatement struct {
+type CallCommandStatement struct {
 	Name      string
 	Arguments []Expression
 }
 
-func (cs *CallStatement) String() string {
+func (cs *CallCommandStatement) String() string {
 	var out string
-	out += "Call " + cs.Name
+	out += cs.Name
 	for _, a := range cs.Arguments {
 		out += " " + a.String()
 	}
@@ -194,4 +209,22 @@ type LoadStatement struct {
 
 func (ls *LoadStatement) String() string {
 	return "Load \"" + ls.Path + "\""
+}
+
+type DefineNumberStatement struct {
+	Name       string
+	Body       Statement
+	Parameters []string
+}
+
+func (fs *DefineNumberStatement) String() string {
+	return "Number " + fs.Name + " " + strings.Join(fs.Parameters, " ") + " " + fs.Body.String()
+}
+
+type ValueStatement struct {
+	Result Expression
+}
+
+func (vs *ValueStatement) String() string {
+	return "Value " + vs.Result.String()
 }

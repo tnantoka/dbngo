@@ -13,16 +13,16 @@ func TestParser(t *testing.T) {
 		{
 			input: "Paper 100\n",
 			expected: []Statement{
-				&PaperStatement{Value: &NumberExpression{Literal: "100"}},
+				&PaperStatement{Value: &IntegerExpression{Literal: "100"}},
 			},
 		},
 		{
 			input: "Pen (10 + 10)",
 			expected: []Statement{
 				&PenStatement{Value: &CalculateExpression{
-					Left:     &NumberExpression{Literal: "10"},
+					Left:     &IntegerExpression{Literal: "10"},
 					Operator: "+",
-					Right:    &NumberExpression{Literal: "10"},
+					Right:    &IntegerExpression{Literal: "10"},
 				}},
 			},
 		},
@@ -30,10 +30,10 @@ func TestParser(t *testing.T) {
 			input: "Line 0 0 100 100",
 			expected: []Statement{
 				&LineStatement{
-					X1: &NumberExpression{Literal: "0"},
-					Y1: &NumberExpression{Literal: "0"},
-					X2: &NumberExpression{Literal: "100"},
-					Y2: &NumberExpression{Literal: "100"},
+					X1: &IntegerExpression{Literal: "0"},
+					Y1: &IntegerExpression{Literal: "0"},
+					X2: &IntegerExpression{Literal: "100"},
+					Y2: &IntegerExpression{Literal: "100"},
 				},
 			},
 		},
@@ -42,7 +42,7 @@ func TestParser(t *testing.T) {
 			expected: []Statement{
 				&SetStatement{
 					Name:  "X",
-					Value: &NumberExpression{Literal: "100"},
+					Value: &IntegerExpression{Literal: "100"},
 				},
 			},
 		},
@@ -50,9 +50,9 @@ func TestParser(t *testing.T) {
 			input: "Set [1 2] 100",
 			expected: []Statement{
 				&DotStatement{
-					X:     &NumberExpression{Literal: "1"},
-					Y:     &NumberExpression{Literal: "2"},
-					Value: &NumberExpression{Literal: "100"},
+					X:     &IntegerExpression{Literal: "1"},
+					Y:     &IntegerExpression{Literal: "2"},
+					Value: &IntegerExpression{Literal: "100"},
 				},
 			},
 		},
@@ -61,8 +61,8 @@ func TestParser(t *testing.T) {
 			expected: []Statement{
 				&CopyStatement{
 					Name: "X",
-					X:    &NumberExpression{Literal: "1"},
-					Y:    &NumberExpression{Literal: "2"},
+					X:    &IntegerExpression{Literal: "1"},
+					Y:    &IntegerExpression{Literal: "2"},
 				},
 			},
 		},
@@ -71,8 +71,8 @@ func TestParser(t *testing.T) {
 			expected: []Statement{
 				&RepeatStatement{
 					Name: "X",
-					From: &NumberExpression{Literal: "0"},
-					To:   &NumberExpression{Literal: "10"},
+					From: &IntegerExpression{Literal: "0"},
+					To:   &IntegerExpression{Literal: "10"},
 					Body: &BlockStatement{
 						Statements: []Statement{
 							&PenStatement{Value: &IdentifierExpression{Literal: "X"}},
@@ -85,8 +85,8 @@ func TestParser(t *testing.T) {
 			input: "Same? 0 10 { Pen X }",
 			expected: []Statement{
 				&SameStatement{
-					Left:  &NumberExpression{Literal: "0"},
-					Right: &NumberExpression{Literal: "10"},
+					Left:  &IntegerExpression{Literal: "0"},
+					Right: &IntegerExpression{Literal: "10"},
 					Body: &BlockStatement{
 						Statements: []Statement{
 							&PenStatement{Value: &IdentifierExpression{Literal: "X"}},
@@ -99,8 +99,8 @@ func TestParser(t *testing.T) {
 			input: "NotSame? 0 10 { Pen X }",
 			expected: []Statement{
 				&NotSameStatement{
-					Left:  &NumberExpression{Literal: "0"},
-					Right: &NumberExpression{Literal: "10"},
+					Left:  &IntegerExpression{Literal: "0"},
+					Right: &IntegerExpression{Literal: "10"},
 					Body: &BlockStatement{
 						Statements: []Statement{
 							&PenStatement{Value: &IdentifierExpression{Literal: "X"}},
@@ -113,8 +113,8 @@ func TestParser(t *testing.T) {
 			input: "Smaller? 0 10 { Pen X }",
 			expected: []Statement{
 				&SmallerStatement{
-					Left:  &NumberExpression{Literal: "0"},
-					Right: &NumberExpression{Literal: "10"},
+					Left:  &IntegerExpression{Literal: "0"},
+					Right: &IntegerExpression{Literal: "10"},
 					Body: &BlockStatement{
 						Statements: []Statement{
 							&PenStatement{Value: &IdentifierExpression{Literal: "X"}},
@@ -127,8 +127,8 @@ func TestParser(t *testing.T) {
 			input: "NotSmaller? 0 10 { Pen X }",
 			expected: []Statement{
 				&NotSmallerStatement{
-					Left:  &NumberExpression{Literal: "0"},
-					Right: &NumberExpression{Literal: "10"},
+					Left:  &IntegerExpression{Literal: "0"},
+					Right: &IntegerExpression{Literal: "10"},
 					Body: &BlockStatement{
 						Statements: []Statement{
 							&PenStatement{Value: &IdentifierExpression{Literal: "X"}},
@@ -140,7 +140,7 @@ func TestParser(t *testing.T) {
 		{
 			input: "Command Test X { Pen X }",
 			expected: []Statement{
-				&FunctionStatement{
+				&DefineCommandStatement{
 					Name:       "Test",
 					Parameters: []string{"X"},
 					Body: &BlockStatement{
@@ -154,10 +154,10 @@ func TestParser(t *testing.T) {
 		{
 			input: "Test 1",
 			expected: []Statement{
-				&CallStatement{
+				&CallCommandStatement{
 					Name: "Test",
 					Arguments: []Expression{
-						&NumberExpression{Literal: "1"},
+						&IntegerExpression{Literal: "1"},
 					},
 				},
 			},
@@ -167,6 +167,30 @@ func TestParser(t *testing.T) {
 			expected: []Statement{
 				&LoadStatement{
 					Path: "a.dbn",
+				},
+			},
+		},
+		{
+			input: "Number Test A { Value 1 }\nPaper <Test 1>",
+			expected: []Statement{
+				&DefineNumberStatement{
+					Name:       "Test",
+					Parameters: []string{"A"},
+					Body: &BlockStatement{
+						Statements: []Statement{
+							&ValueStatement{
+								Result: &IntegerExpression{Literal: "1"},
+							},
+						},
+					},
+				},
+				&PaperStatement{
+					Value: &CallNumberExpression{
+						Name: "Test",
+						Arguments: []Expression{
+							&IntegerExpression{Literal: "1"},
+						},
+					},
 				},
 			},
 		},

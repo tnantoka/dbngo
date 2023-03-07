@@ -16,7 +16,7 @@ func (l *Lexer) Lex(lval *yySymType) int {
 	literal := l.TokenText()
 	switch token {
 	case scanner.Int:
-		token = NUMBER
+		token = INTEGER
 	case scanner.String:
 		literal = strings.Trim(literal, "\"")
 		token = STRING
@@ -56,6 +56,10 @@ func (l *Lexer) Lex(lval *yySymType) int {
 			token = COMMAND
 		case "Load":
 			token = LOAD
+		case "Number":
+			token = NUMBER
+		case "Value":
+			token = VALUE
 		default:
 			token = IDENTIFIER
 		}
@@ -71,6 +75,10 @@ func (l *Lexer) Lex(lval *yySymType) int {
 		token = LBRACKET
 	case ']':
 		token = RBRACKET
+	case '<':
+		token = LT
+	case '>':
+		token = GT
 	case '+', '-', '*', '/':
 		token = OPERATOR
 	case '\n':

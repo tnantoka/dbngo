@@ -14,7 +14,7 @@ package parser
 %type<statements> statements body
 
 %type<statement> statement command
-%type<statement> paper pen line set dot copy repeat same notsame smaller notsmaller function call load
+%type<statement> paper pen line set dot copy repeat same notsame smaller notsmaller definecommand callcommand load definenumber value
 %type<statement> block
 
 %type<expression> expression
@@ -22,9 +22,9 @@ package parser
 %type<parameters> parameters
 %type<arguments> arguments
 
-%token<token> NUMBER LF IDENTIFIER OPERATOR
-%token<token> PAPER PEN LINE SET REPEAT SAME NOTSAME SMALLER NOTSMALLER COMMAND LOAD
-%token<token> LBRACE RBRACE LPAREN RPAREN LBRACKET RBRACKET
+%token<token> INTEGER LF IDENTIFIER OPERATOR
+%token<token> PAPER PEN LINE SET REPEAT SAME NOTSAME SMALLER NOTSMALLER COMMAND LOAD NUMBER VALUE
+%token<token> LBRACE RBRACE LPAREN RPAREN LBRACKET RBRACKET LT GT
 %token<token> STRING
 
 %%
@@ -83,9 +83,11 @@ command
     | notsame
     | smaller
     | notsmaller
-    | function
-    | call
+    | definecommand
+    | callcommand
     | load
+    | definenumber
+    | value
 
 paper
     : PAPER expression
@@ -153,10 +155,10 @@ notsmaller
         $$ = &NotSmallerStatement{Left: $2, Right: $3, Body: $4}
     }
 
-function
+definecommand
     : COMMAND IDENTIFIER parameters block
     {
-        $$ = &FunctionStatement{Name: $2.Literal, Parameters: $3, Body: $4}
+        $$ = &DefineCommandStatement{Name: $2.Literal, Parameters: $3, Body: $4}
     }
 
 parameters
@@ -169,10 +171,16 @@ parameters
         $$ = append([]string{$1.Literal}, $2...)
     }
 
-call
+callcommand
     : IDENTIFIER arguments
     {
-        $$ = &CallStatement{Name: $1.Literal, Arguments: $2}
+        $$ = &CallCommandStatement{Name: $1.Literal, Arguments: $2}
+    }
+
+definenumber
+    : NUMBER IDENTIFIER parameters block
+    {
+        $$ = &DefineNumberStatement{Name: $2.Literal, Parameters: $3, Body: $4}
     }
 
 arguments
@@ -191,10 +199,16 @@ load
         $$ = &LoadStatement{Path: $2.Literal}
     }
 
+value
+   : VALUE expression
+   {
+       $$ = &ValueStatement{Result: $2}
+   } 
+
 expression
-    : NUMBER
+    : INTEGER
     {
-        $$ = &NumberExpression{Literal: $1.Literal}
+        $$ = &IntegerExpression{Literal: $1.Literal}
     }
     | IDENTIFIER
     {
@@ -204,4 +218,9 @@ expression
     {
         $$ = &CalculateExpression{Left: $2, Operator: $3.Literal, Right: $4}
     }
+    | LT IDENTIFIER arguments GT
+    {
+        $$ = &CallNumberExpression{Name: $2.Literal, Arguments: $3}
+    }
+
 %%
