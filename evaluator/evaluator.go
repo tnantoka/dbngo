@@ -1,8 +1,12 @@
 package evaluator
 
 import (
+	"bytes"
 	"image"
 	"image/color"
+	"image/color/palette"
+	"image/gif"
+	"image/png"
 	"io"
 	"os"
 	"strconv"
@@ -19,6 +23,7 @@ type Evaluator struct {
 	Errors    []string
 	color     color.Color
 	img       *image.RGBA
+	gif       *gif.GIF
 	Scale     int
 	Directory string
 }
@@ -29,6 +34,7 @@ func New() *Evaluator {
 
 func (e *Evaluator) Eval(input io.Reader) image.Image {
 	e.img = image.NewRGBA(image.Rect(0, 0, e.length, e.length))
+	e.gif = &gif.GIF{}
 
 	l := new(parser.Lexer)
 	l.Init(input)
@@ -41,9 +47,14 @@ func (e *Evaluator) Eval(input io.Reader) image.Image {
 	}
 
 	draw.Draw(e.img, e.img.Bounds(), &image.Uniform{color.RGBA{255, 255, 255, 255}}, image.Point{0, 0}, draw.Src)
+	e.addGifFrame()
 
 	env := NewEnvironment()
 	e.evalStatements(l.Statements, env)
+
+	f, _ := os.Create("out.gif")
+	defer f.Close()
+	gif.EncodeAll(f, e.gif)
 
 	return e.scale()
 }
@@ -104,6 +115,7 @@ func (e *Evaluator) evalStatement(statement parser.Statement, env *Environment) 
 
 func (e *Evaluator) evalPaperStatement(statement *parser.PaperStatement, env *Environment) {
 	draw.Draw(e.img, e.img.Bounds(), &image.Uniform{e.evalColor(statement.Value, env)}, image.Point{0, 0}, draw.Src)
+	e.addGifFrame()
 }
 
 func (e *Evaluator) evalPenStatement(statement *parser.PenStatement, env *Environment) {
@@ -116,6 +128,7 @@ func (e *Evaluator) evalLineStatement(statement *parser.LineStatement, env *Envi
 	x2 := e.evalNumber(statement.X2, env)
 	y2 := 100 - e.evalNumber(statement.Y2, env)
 	bresenham.DrawLine(e.img, x1, y1, x2, y2, e.color)
+	e.addGifFrame()
 }
 
 func (e *Evaluator) evalSetStatement(statement *parser.SetStatement, env *Environment) {
@@ -126,6 +139,7 @@ func (e *Evaluator) evalDotStatement(statement *parser.DotStatement, env *Enviro
 	x := e.evalNumber(statement.X, env)
 	y := 100 - e.evalNumber(statement.Y, env)
 	e.img.Set(x, y, e.color)
+	e.addGifFrame()
 }
 
 func (e *Evaluator) evalCopyStatement(statement *parser.CopyStatement, env *Environment) {
@@ -273,4 +287,19 @@ func (e *Evaluator) evalNumber(expression parser.Expression, env *Environment) i
 		}
 	}
 	return 0
+}
+
+func (e *Evaluator) addGifFrame() {
+	buf := new(bytes.Buffer)
+	if err := png.Encode(buf, e.img); err != nil {
+		e.Errors = append(e.Errors, err.Error())
+		return
+	}
+
+	bounds := e.img.Bounds()
+	paletted := image.NewPaletted(bounds, palette.WebSafe)
+	draw.Draw(paletted, bounds, e.img, bounds.Min, draw.Src)
+
+	e.gif.Image = append(e.gif.Image, paletted)
+	e.gif.Delay = append(e.gif.Delay, 0)
 }

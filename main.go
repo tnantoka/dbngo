@@ -13,11 +13,13 @@ import (
 var input string
 var output string
 var scale int
+var gif bool
 
 func parseFlags() {
 	flag.StringVar(&input, "i", "", "input file")
 	flag.StringVar(&output, "o", "dbngo.png", "output file")
 	flag.IntVar(&scale, "s", 1, "scale")
+	flag.BoolVar(&gif, "g", false, "gif")
 
 	flag.Parse()
 
