@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"image/gif"
 	"image/png"
 	"log"
 	"os"
@@ -11,15 +12,15 @@ import (
 )
 
 var input string
-var output string
+var outputPNG string
+var outputGIF string
 var scale int
-var gif bool
 
 func parseFlags() {
 	flag.StringVar(&input, "i", "", "input file")
-	flag.StringVar(&output, "o", "dbngo.png", "output file")
+	flag.StringVar(&outputPNG, "p", "dbngo.png", "output png file")
+	flag.StringVar(&outputGIF, "g", "", "output gif file")
 	flag.IntVar(&scale, "s", 1, "scale")
-	flag.BoolVar(&gif, "g", false, "gif")
 
 	flag.Parse()
 
@@ -37,15 +38,17 @@ func main() {
 	}
 	defer inputFile.Close()
 
-	outputFile, err := os.Create(output)
+	outputFile, err := os.Create(outputPNG)
 	if err != nil {
-		log.Fatalf("failed creating output file: %s", err)
+		log.Fatalf("failed creating output png file: %s", err)
 	}
 	defer outputFile.Close()
 
 	e := evaluator.New()
 	e.Scale = scale
 	e.Directory = filepath.Dir(filepath.Clean(input))
+	e.WithGIF = outputGIF != ""
+
 	img := e.Eval(inputFile)
 
 	if len(e.Errors) > 0 {
@@ -54,5 +57,16 @@ func main() {
 
 	if err := png.Encode(outputFile, img); err != nil {
 		log.Fatalf("failed encoding image: %s", err)
+	}
+
+	if e.WithGIF {
+		file, err := os.Create(outputGIF)
+		if err != nil {
+			log.Fatalf("failed creating output gif file: %s", err)
+		}
+		defer file.Close()
+		if err := gif.EncodeAll(file, e.GIF); err != nil {
+			log.Fatalf("failed encoding gif: %s", err)
+		}
 	}
 }

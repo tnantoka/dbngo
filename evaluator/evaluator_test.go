@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"image/gif"
 	"image/png"
 	"io/ioutil"
 	"os"
@@ -671,6 +672,35 @@ func TestNumber(t *testing.T) {
 	}
 }
 
+func TestGIF(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{
+			"Repeat C 0 10 { Paper C }",
+			"gradation.gif",
+		},
+	}
+
+	for i, test := range tests {
+		e := New()
+		e.WithGIF = true
+		e.Eval(strings.NewReader(test.input))
+
+		if len(e.Errors) > 0 {
+			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
+		}
+
+		actual := gifToBytes(t, e.GIF)
+		expected := readBytes(t, "../testdata/"+test.expected)
+
+		if !bytes.Equal(actual, expected) {
+			t.Errorf("test %d: expected %v, but got %v", i, expected, actual)
+		}
+	}
+}
+
 func imageToBytes(t *testing.T, img image.Image) []byte {
 	buf := new(bytes.Buffer)
 	err := png.Encode(buf, img)
@@ -691,6 +721,25 @@ func imageToBytes(t *testing.T, img image.Image) []byte {
 	return buf.Bytes()
 }
 
+func gifToBytes(t *testing.T, g *gif.GIF) []byte {
+	buf := new(bytes.Buffer)
+	err := gif.EncodeAll(buf, g)
+	if err != nil {
+		t.Fatalf("failed to encode image: %s", err)
+	}
+
+	debugFile, err := os.Create("../tmp/debug.gif")
+	if err != nil {
+		t.Fatalf("failed to create debug file: %s", err)
+	}
+	defer debugFile.Close()
+
+	if err := gif.EncodeAll(debugFile, g); err != nil {
+		t.Fatalf("failed to encode debug gif: %s", err)
+	}
+
+	return buf.Bytes()
+}
 func readBytes(t *testing.T, path string) []byte {
 	t.Helper()
 

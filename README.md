@@ -15,5 +15,5 @@ $ go test ./... -coverprofile=cover_broken.out && \
   cat cover_broken.out | grep -v yaccpar | grep -v .y > cover.out && \
   go tool cover -html=cover.out -o coverage.html
 
-$ go run main.go -i testdata/hello.dbn -o tmp/dbngo.png
+$ go run main.go -i testdata/hello.dbn -p tmp/dbngo.png -g tmp/dbngo.gif -s 2
 ```
