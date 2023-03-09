@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"image/gif"
@@ -30,11 +31,12 @@ func New() *Evaluator {
 	return &Evaluator{length: DEFAULT_LENGTH, color: color.RGBA{0, 0, 0, 255}, Scale: 1, Directory: "", WithGIF: false}
 }
 
-func (e *Evaluator) Eval(input io.Reader) image.Image {
+func (e *Evaluator) Eval(input io.Reader, path string) image.Image {
 	e.img = image.NewRGBA(image.Rect(0, 0, e.length, e.length))
 	e.GIF = &gif.GIF{}
 
 	l := new(parser.Lexer)
+	l.Filename = path
 	l.Init(input)
 
 	parser.Parse(l)
@@ -188,9 +190,9 @@ func (e *Evaluator) evalDefineCommandStatement(statement *parser.DefineCommandSt
 }
 
 func (e *Evaluator) evalCallCommandStatement(statement *parser.CallCommandStatement, env *Environment) {
-	fun, ok := env.Get(statement.Name)
+	fun, ok := env.Get(statement.Token.Literal)
 	if !ok {
-		e.Errors = append(e.Errors, "Command not found: "+statement.Name)
+		e.Errors = append(e.Errors, fmt.Sprintf("%sCommand not found: %s", statement.Token.Pos(), statement.Token.Literal))
 		return
 	}
 	funStatement := fun.(*parser.DefineCommandStatement)
@@ -202,13 +204,14 @@ func (e *Evaluator) evalCallCommandStatement(statement *parser.CallCommandStatem
 }
 
 func (e *Evaluator) evalLoadStatement(statement *parser.LoadStatement, env *Environment) {
-	file, err := os.Open(e.Directory + "/" + statement.Path)
+	file, err := os.Open(e.Directory + "/" + statement.Token.Literal)
 	if err != nil {
-		e.Errors = append(e.Errors, err.Error())
+		e.Errors = append(e.Errors, fmt.Sprintf("%s%s", statement.Token.Pos(), err.Error()))
 		return
 	}
 
 	l := new(parser.Lexer)
+	l.Filename = statement.Token.Literal
 	l.Init(file)
 
 	parser.Parse(l)
@@ -241,9 +244,9 @@ func (e *Evaluator) evalNumber(expression parser.Expression, env *Environment) i
 		num, _ := strconv.Atoi(exp.Literal)
 		return num
 	case *parser.IdentifierExpression:
-		num, ok := env.Get(exp.Literal)
+		num, ok := env.Get(exp.Token.Literal)
 		if !ok || num == nil {
-			e.Errors = append(e.Errors, "Identifier not found: "+exp.Literal)
+			e.Errors = append(e.Errors, fmt.Sprintf("%sIdentifier not found: %s", exp.Token.Pos(), exp.Token.Literal))
 			return 0
 		}
 		return num.(int)
@@ -261,9 +264,9 @@ func (e *Evaluator) evalNumber(expression parser.Expression, env *Environment) i
 			return left / right
 		}
 	case *parser.CallNumberExpression:
-		fun, ok := env.Get(exp.Name)
+		fun, ok := env.Get(exp.Token.Literal)
 		if !ok {
-			e.Errors = append(e.Errors, "Number not found: "+exp.Name)
+			e.Errors = append(e.Errors, fmt.Sprintf("%sNumber not found: %s", exp.Token.Pos(), exp.Token.Literal))
 			return 0
 		}
 		funStatement := fun.(*parser.DefineNumberStatement)

@@ -75,7 +75,7 @@ func TestParser(t *testing.T) {
 					To:   &IntegerExpression{Literal: "10"},
 					Body: &BlockStatement{
 						Statements: []Statement{
-							&PenStatement{Value: &IdentifierExpression{Literal: "X"}},
+							&PenStatement{Value: &IdentifierExpression{Token: Token{Literal: "X"}}},
 						},
 					},
 				},
@@ -89,7 +89,7 @@ func TestParser(t *testing.T) {
 					Right: &IntegerExpression{Literal: "10"},
 					Body: &BlockStatement{
 						Statements: []Statement{
-							&PenStatement{Value: &IdentifierExpression{Literal: "X"}},
+							&PenStatement{Value: &IdentifierExpression{Token: Token{Literal: "X"}}},
 						},
 					},
 				},
@@ -103,7 +103,7 @@ func TestParser(t *testing.T) {
 					Right: &IntegerExpression{Literal: "10"},
 					Body: &BlockStatement{
 						Statements: []Statement{
-							&PenStatement{Value: &IdentifierExpression{Literal: "X"}},
+							&PenStatement{Value: &IdentifierExpression{Token: Token{Literal: "X"}}},
 						},
 					},
 				},
@@ -117,7 +117,7 @@ func TestParser(t *testing.T) {
 					Right: &IntegerExpression{Literal: "10"},
 					Body: &BlockStatement{
 						Statements: []Statement{
-							&PenStatement{Value: &IdentifierExpression{Literal: "X"}},
+							&PenStatement{Value: &IdentifierExpression{Token: Token{Literal: "X"}}},
 						},
 					},
 				},
@@ -131,7 +131,7 @@ func TestParser(t *testing.T) {
 					Right: &IntegerExpression{Literal: "10"},
 					Body: &BlockStatement{
 						Statements: []Statement{
-							&PenStatement{Value: &IdentifierExpression{Literal: "X"}},
+							&PenStatement{Value: &IdentifierExpression{Token: Token{Literal: "X"}}},
 						},
 					},
 				},
@@ -145,7 +145,7 @@ func TestParser(t *testing.T) {
 					Parameters: []string{"X"},
 					Body: &BlockStatement{
 						Statements: []Statement{
-							&PenStatement{Value: &IdentifierExpression{Literal: "X"}},
+							&PenStatement{Value: &IdentifierExpression{Token: Token{Literal: "X"}}},
 						},
 					},
 				},
@@ -155,7 +155,7 @@ func TestParser(t *testing.T) {
 			input: "Test 1",
 			expected: []Statement{
 				&CallCommandStatement{
-					Name: "Test",
+					Token: Token{Literal: "Test"},
 					Arguments: []Expression{
 						&IntegerExpression{Literal: "1"},
 					},
@@ -166,7 +166,7 @@ func TestParser(t *testing.T) {
 			input: "Load \"a.dbn\"",
 			expected: []Statement{
 				&LoadStatement{
-					Path: "a.dbn",
+					Token{Literal: "a.dbn"},
 				},
 			},
 		},
@@ -186,7 +186,7 @@ func TestParser(t *testing.T) {
 				},
 				&PaperStatement{
 					Value: &CallNumberExpression{
-						Name: "Test",
+						Token: Token{Literal: "Test"},
 						Arguments: []Expression{
 							&IntegerExpression{Literal: "1"},
 						},
@@ -226,13 +226,14 @@ func TestErrors(t *testing.T) {
 		{
 			input: "Paper 100 Paper 100\n",
 			expected: []string{
-				"syntax error",
+				"test.dbn:1:11: syntax error",
 			},
 		},
 	}
 
 	for i, test := range tests {
 		l := new(Lexer)
+		l.Filename = "test.dbn"
 		l.Init(strings.NewReader(test.input))
 
 		Parse(l)

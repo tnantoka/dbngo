@@ -52,7 +52,7 @@ func TestSyntax(t *testing.T) {
 
 	for i, test := range tests {
 		e := New()
-		img := e.Eval(strings.NewReader(test.input))
+		img := e.Eval(strings.NewReader(test.input), "test.dbn")
 
 		if len(e.Errors) > 0 {
 			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
@@ -75,37 +75,37 @@ func TestErrors(t *testing.T) {
 		{
 			"Paper 100 Paper 100\n",
 			[]string{
-				"syntax error",
+				"test.dbn:1:11: syntax error",
 			},
 		},
 		{
 			"Paper X\n",
 			[]string{
-				"Identifier not found: X",
+				"test.dbn:1:8: Identifier not found: X",
 			},
 		},
 		{
 			"Func X\n",
 			[]string{
-				"Command not found: Func",
+				"test.dbn:1:5: Command not found: Func",
 			},
 		},
 		{
 			"Load \"error.dbn\"\n",
 			[]string{
-				"syntax error",
+				"error.dbn:1:9: syntax error",
 			},
 		},
 		{
 			"Load \"notfound.dbn\"\n",
 			[]string{
-				"open ../testdata/notfound.dbn: no such file or directory",
+				"test.dbn:1:20: open ../testdata/notfound.dbn: no such file or directory",
 			},
 		},
 		{
 			"Paper <Test>",
 			[]string{
-				"Number not found: Test",
+				"test.dbn:1:12: Number not found: Test",
 			},
 		},
 	}
@@ -113,7 +113,7 @@ func TestErrors(t *testing.T) {
 	for i, test := range tests {
 		e := New()
 		e.Directory = "../testdata"
-		e.Eval(strings.NewReader(test.input))
+		e.Eval(strings.NewReader(test.input), "test.dbn")
 
 		if len(e.Errors) != len(test.expected) {
 			t.Errorf("test %d: expected %d errors, got %d", i, len(test.expected), len(e.Errors))
@@ -141,7 +141,7 @@ func TestScale(t *testing.T) {
 	for i, test := range tests {
 		e := New()
 		e.Scale = 2
-		img := e.Eval(strings.NewReader(test.input))
+		img := e.Eval(strings.NewReader(test.input), "test.dbn")
 
 		if len(e.Errors) > 0 {
 			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
@@ -173,7 +173,7 @@ func TestPaper(t *testing.T) {
 
 	for i, test := range tests {
 		e := New()
-		img := e.Eval(strings.NewReader(test.input))
+		img := e.Eval(strings.NewReader(test.input), "test.dbn")
 
 		if len(e.Errors) > 0 {
 			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
@@ -205,7 +205,7 @@ func TestPen(t *testing.T) {
 
 	for i, test := range tests {
 		e := New()
-		e.Eval(strings.NewReader(test.input))
+		e.Eval(strings.NewReader(test.input), "test.dbn")
 
 		if len(e.Errors) > 0 {
 			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
@@ -230,7 +230,7 @@ func TestSet(t *testing.T) {
 
 	for i, test := range tests {
 		e := New()
-		e.Eval(strings.NewReader(test.input))
+		e.Eval(strings.NewReader(test.input), "test.dbn")
 
 		if len(e.Errors) > 0 {
 			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
@@ -255,7 +255,7 @@ func TestDot(t *testing.T) {
 
 	for i, test := range tests {
 		e := New()
-		img := e.Eval(strings.NewReader(test.input))
+		img := e.Eval(strings.NewReader(test.input), "test.dbn")
 
 		if len(e.Errors) > 0 {
 			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
@@ -283,7 +283,7 @@ func TestCopy(t *testing.T) {
 
 	for i, test := range tests {
 		e := New()
-		e.Eval(strings.NewReader(test.input))
+		e.Eval(strings.NewReader(test.input), "test.dbn")
 
 		if len(e.Errors) > 0 {
 			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
@@ -356,7 +356,7 @@ func TestLine(t *testing.T) {
 
 	for i, test := range tests {
 		e := New()
-		img := e.Eval(strings.NewReader(test.input))
+		img := e.Eval(strings.NewReader(test.input), "test.dbn")
 
 		if len(e.Errors) > 0 {
 			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
@@ -384,7 +384,7 @@ func TestBlock(t *testing.T) {
 
 	for i, test := range tests {
 		e := New()
-		img := e.Eval(strings.NewReader(test.input))
+		img := e.Eval(strings.NewReader(test.input), "test.dbn")
 
 		if len(e.Errors) > 0 {
 			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
@@ -412,7 +412,7 @@ func TestRepeat(t *testing.T) {
 
 	for i, test := range tests {
 		e := New()
-		img := e.Eval(strings.NewReader(test.input))
+		img := e.Eval(strings.NewReader(test.input), "test.dbn")
 
 		if len(e.Errors) > 0 {
 			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
@@ -440,7 +440,7 @@ func TestSame(t *testing.T) {
 
 	for i, test := range tests {
 		e := New()
-		img := e.Eval(strings.NewReader(test.input))
+		img := e.Eval(strings.NewReader(test.input), "test.dbn")
 
 		if len(e.Errors) > 0 {
 			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
@@ -468,7 +468,7 @@ func TestNotSame(t *testing.T) {
 
 	for i, test := range tests {
 		e := New()
-		img := e.Eval(strings.NewReader(test.input))
+		img := e.Eval(strings.NewReader(test.input), "test.dbn")
 
 		if len(e.Errors) > 0 {
 			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
@@ -496,7 +496,7 @@ func TestSmaller(t *testing.T) {
 
 	for i, test := range tests {
 		e := New()
-		img := e.Eval(strings.NewReader(test.input))
+		img := e.Eval(strings.NewReader(test.input), "test.dbn")
 
 		if len(e.Errors) > 0 {
 			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
@@ -524,7 +524,7 @@ func TestNotSmaller(t *testing.T) {
 
 	for i, test := range tests {
 		e := New()
-		img := e.Eval(strings.NewReader(test.input))
+		img := e.Eval(strings.NewReader(test.input), "test.dbn")
 
 		if len(e.Errors) > 0 {
 			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
@@ -564,7 +564,7 @@ func TestCalculate(t *testing.T) {
 
 	for i, test := range tests {
 		e := New()
-		img := e.Eval(strings.NewReader(test.input))
+		img := e.Eval(strings.NewReader(test.input), "test.dbn")
 
 		if len(e.Errors) > 0 {
 			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
@@ -600,7 +600,7 @@ func TestCommand(t *testing.T) {
 
 	for i, test := range tests {
 		e := New()
-		img := e.Eval(strings.NewReader(test.input))
+		img := e.Eval(strings.NewReader(test.input), "test.dbn")
 
 		if len(e.Errors) > 0 {
 			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
@@ -629,7 +629,7 @@ func TestLoad(t *testing.T) {
 	for i, test := range tests {
 		e := New()
 		e.Directory = "../testdata"
-		img := e.Eval(strings.NewReader(test.input))
+		img := e.Eval(strings.NewReader(test.input), "test.dbn")
 
 		if len(e.Errors) > 0 {
 			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
@@ -657,7 +657,7 @@ func TestNumber(t *testing.T) {
 
 	for i, test := range tests {
 		e := New()
-		img := e.Eval(strings.NewReader(test.input))
+		img := e.Eval(strings.NewReader(test.input), "test.dbn")
 
 		if len(e.Errors) > 0 {
 			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
@@ -686,7 +686,7 @@ func TestGIF(t *testing.T) {
 	for i, test := range tests {
 		e := New()
 		e.WithGIF = true
-		e.Eval(strings.NewReader(test.input))
+		e.Eval(strings.NewReader(test.input), "test.dbn")
 
 		if len(e.Errors) > 0 {
 			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)

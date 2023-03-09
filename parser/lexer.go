@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"strings"
 	"text/scanner"
 )
@@ -86,11 +87,11 @@ func (l *Lexer) Lex(lval *yySymType) int {
 	case scanner.EOF:
 		token = 0
 	}
-	lval.token = Token{Token: token, Literal: literal}
+	lval.token = Token{Token: token, Literal: literal, Position: l.Pos()}
 
 	return token
 }
 
 func (l *Lexer) Error(e string) {
-	l.Errors = append(l.Errors, e)
+	l.Errors = append(l.Errors, fmt.Sprintf("%s:%d:%d: %s", l.Filename, l.Line, l.Column, e))
 }

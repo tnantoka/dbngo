@@ -174,7 +174,7 @@ parameters
 callcommand
     : IDENTIFIER arguments
     {
-        $$ = &CallCommandStatement{Name: $1.Literal, Arguments: $2}
+        $$ = &CallCommandStatement{Token: $1, Arguments: $2}
     }
 
 definenumber
@@ -196,7 +196,7 @@ arguments
 load
     : LOAD STRING
     {
-        $$ = &LoadStatement{Path: $2.Literal}
+        $$ = &LoadStatement{Token: $2}
     }
 
 value
@@ -212,7 +212,7 @@ expression
     }
     | IDENTIFIER
     {
-        $$ = &IdentifierExpression{Literal: $1.Literal}
+        $$ = &IdentifierExpression{Token: $1}
     }
     | LPAREN expression OPERATOR expression RPAREN
     {
@@ -220,7 +220,7 @@ expression
     }
     | LT IDENTIFIER arguments GT
     {
-        $$ = &CallNumberExpression{Name: $2.Literal, Arguments: $3}
+        $$ = &CallNumberExpression{Token: $2, Arguments: $3}
     }
 
 %%

@@ -49,7 +49,7 @@ func main() {
 	e.Directory = filepath.Dir(filepath.Clean(input))
 	e.WithGIF = outputGIF != ""
 
-	img := e.Eval(inputFile)
+	img := e.Eval(inputFile, input)
 
 	if len(e.Errors) > 0 {
 		log.Fatal(e.Errors)

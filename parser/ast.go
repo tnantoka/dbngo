@@ -1,12 +1,20 @@
 package parser
 
 import (
+	"fmt"
 	"strings"
+	"text/scanner"
 )
 
 type Token struct {
-	Token   int
-	Literal string
+	Token    int
+	Literal  string
+	Position scanner.Position
+}
+
+func (t *Token) Pos() string {
+	pos := t.Position
+	return fmt.Sprintf("%s:%d:%d: ", pos.Filename, pos.Line, pos.Column)
 }
 
 type Expression interface {
@@ -22,11 +30,11 @@ func (ne *IntegerExpression) String() string {
 }
 
 type IdentifierExpression struct {
-	Literal string
+	Token Token
 }
 
 func (ie *IdentifierExpression) String() string {
-	return ie.Literal
+	return ie.Token.Literal
 }
 
 type CalculateExpression struct {
@@ -40,13 +48,13 @@ func (ce *CalculateExpression) String() string {
 }
 
 type CallNumberExpression struct {
-	Name      string
+	Token     Token
 	Arguments []Expression
 }
 
 func (ce *CallNumberExpression) String() string {
 	var out string = "<"
-	out += ce.Name
+	out += ce.Token.Literal
 	for _, a := range ce.Arguments {
 		out += " " + a.String()
 	}
@@ -190,13 +198,13 @@ func (fs *DefineCommandStatement) String() string {
 }
 
 type CallCommandStatement struct {
-	Name      string
+	Token     Token
 	Arguments []Expression
 }
 
 func (cs *CallCommandStatement) String() string {
 	var out string
-	out += cs.Name
+	out += cs.Token.Literal
 	for _, a := range cs.Arguments {
 		out += " " + a.String()
 	}
@@ -204,11 +212,11 @@ func (cs *CallCommandStatement) String() string {
 }
 
 type LoadStatement struct {
-	Path string
+	Token Token
 }
 
 func (ls *LoadStatement) String() string {
-	return "Load \"" + ls.Path + "\""
+	return "Load \"" + ls.Token.Literal + "\""
 }
 
 type DefineNumberStatement struct {
