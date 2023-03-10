@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"embed"
 	"fmt"
 	"image"
 	"image/color"
@@ -15,6 +16,9 @@ import (
 )
 
 const DEFAULT_LENGTH = 100
+
+//go:embed builtins/*
+var builtinsFS embed.FS
 
 type Evaluator struct {
 	length    int
@@ -46,10 +50,12 @@ func (e *Evaluator) Eval(input io.Reader, path string) image.Image {
 		return e.img
 	}
 
+	env := NewEnvironment()
+	e.loadBuiltins(env)
+
 	draw.Draw(e.img, e.img.Bounds(), &image.Uniform{color.RGBA{255, 255, 255, 255}}, image.Point{0, 0}, draw.Src)
 	e.addGIFFrame()
 
-	env := NewEnvironment()
 	e.evalStatements(l.Statements, env)
 
 	return e.scale()
@@ -321,4 +327,28 @@ func colorPalette(img image.Image) color.Palette {
 	}
 
 	return palette
+}
+
+func (e *Evaluator) loadBuiltins(env *Environment) {
+	for _, path := range []string{"dbnletters.dbn"} {
+		file, err := builtinsFS.Open("builtins/" + path)
+
+		if err != nil {
+			e.Errors = append(e.Errors, fmt.Sprintf("builtin file not found: %s", path))
+			continue
+		}
+
+		l := new(parser.Lexer)
+		l.Filename = path
+		l.Init(file)
+
+		parser.Parse(l)
+		e.Errors = append(e.Errors, l.Errors...)
+
+		if len(l.Errors) > 0 {
+			continue
+		}
+
+		e.evalStatements(l.Statements, env)
+	}
 }

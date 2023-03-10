@@ -27,6 +27,9 @@ package parser
 %token<token> LBRACE RBRACE LPAREN RPAREN LBRACKET RBRACKET LT GT
 %token<token> STRING
 
+%left '+', '-'
+%left '*', '/'
+
 %%
 
 statements
@@ -126,39 +129,43 @@ copy
     }
 
 repeat
-    : REPEAT IDENTIFIER expression expression block
+    : REPEAT IDENTIFIER expression expression newline block
     {
-        $$ = &RepeatStatement{Name: $2.Literal, From: $3, To: $4, Body: $5}
+        $$ = &RepeatStatement{Name: $2.Literal, From: $3, To: $4, Body: $6}
     }
 
+newline
+    :
+    | LF newline
+
 same
-    : SAME expression expression block
+    : SAME expression expression newline block
     {
-        $$ = &SameStatement{Left: $2, Right: $3, Body: $4}
+        $$ = &SameStatement{Left: $2, Right: $3, Body: $5}
     }
 
 notsame
-    : NOTSAME expression expression block
+    : NOTSAME expression expression newline block
     {
-        $$ = &NotSameStatement{Left: $2, Right: $3, Body: $4}
+        $$ = &NotSameStatement{Left: $2, Right: $3, Body: $5}
     }
 
 smaller
-    : SMALLER expression expression block
+    : SMALLER expression expression newline block
     {
-        $$ = &SmallerStatement{Left: $2, Right: $3, Body: $4}
+        $$ = &SmallerStatement{Left: $2, Right: $3, Body: $5}
     }
 
 notsmaller
-    : NOTSMALLER expression expression block
+    : NOTSMALLER expression expression newline block
     {
-        $$ = &NotSmallerStatement{Left: $2, Right: $3, Body: $4}
+        $$ = &NotSmallerStatement{Left: $2, Right: $3, Body: $5}
     }
 
 definecommand
-    : COMMAND IDENTIFIER parameters block
+    : COMMAND IDENTIFIER parameters newline block
     {
-        $$ = &DefineCommandStatement{Name: $2.Literal, Parameters: $3, Body: $4}
+        $$ = &DefineCommandStatement{Name: $2.Literal, Parameters: $3, Body: $5}
     }
 
 parameters
@@ -178,9 +185,9 @@ callcommand
     }
 
 definenumber
-    : NUMBER IDENTIFIER parameters block
+    : NUMBER IDENTIFIER parameters newline block
     {
-        $$ = &DefineNumberStatement{Name: $2.Literal, Parameters: $3, Body: $4}
+        $$ = &DefineNumberStatement{Name: $2.Literal, Parameters: $3, Body: $5}
     }
 
 arguments
@@ -214,13 +221,29 @@ expression
     {
         $$ = &IdentifierExpression{Token: $1}
     }
-    | LPAREN expression OPERATOR expression RPAREN
+    | expression '+' expression
     {
-        $$ = &CalculateExpression{Left: $2, Operator: $3.Literal, Right: $4}
+        $$ = &CalculateExpression{Left: $1, Operator: "+", Right: $3}
+    }
+    | expression '-' expression
+    {
+        $$ = &CalculateExpression{Left: $1, Operator: "-", Right: $3}
+    }
+    | expression '*' expression
+    {
+        $$ = &CalculateExpression{Left: $1, Operator: "*", Right: $3}
+    }
+    | expression '/' expression
+    {
+        $$ = &CalculateExpression{Left: $1, Operator: "/", Right: $3}
     }
     | LT IDENTIFIER arguments GT
     {
         $$ = &CallNumberExpression{Token: $2, Arguments: $3}
+    }
+    | LPAREN expression RPAREN
+    {
+        $$ = $2
     }
 
 %%

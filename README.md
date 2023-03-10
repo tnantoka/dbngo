@@ -23,6 +23,10 @@ Generate PNG adn GIF from `.dbn` files.
 - ~~Net~~
 - ~~Time~~
 
+## Built-in libraries
+
+- Letters
+
 ## Diffs
 
 Command | DBN | dbngo

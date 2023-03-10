@@ -560,6 +560,14 @@ func TestCalculate(t *testing.T) {
 			"Paper (100 / 2)",
 			"gray.png",
 		},
+		{
+			"Paper (20 / 2 + 20 * 2)",
+			"gray.png",
+		},
+		{
+			"Paper (50)",
+			"gray.png",
+		},
 	}
 
 	for i, test := range tests {
@@ -755,4 +763,32 @@ func readBytes(t *testing.T, path string) []byte {
 	}
 
 	return bytes
+}
+
+func TestBuiltins(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{
+			"letterA 10 10",
+			"letter.png",
+		},
+	}
+
+	for i, test := range tests {
+		e := New()
+		img := e.Eval(strings.NewReader(test.input), "test.dbn")
+
+		if len(e.Errors) > 0 {
+			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
+		}
+
+		actual := imageToBytes(t, img)
+		expected := readBytes(t, "../testdata/"+test.expected)
+
+		if !bytes.Equal(actual, expected) {
+			t.Errorf("test %d: expected %v, but got %v", i, expected, actual)
+		}
+	}
 }

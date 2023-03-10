@@ -23,43 +23,43 @@ func (l *Lexer) Lex(lval *yySymType) int {
 		token = STRING
 	case scanner.Ident:
 		switch literal {
-		case "Paper":
+		case "Paper", "paper":
 			token = PAPER
-		case "Pen":
+		case "Pen", "pen":
 			token = PEN
-		case "Line":
+		case "Line", "line":
 			token = LINE
-		case "Set":
+		case "Set", "set":
 			token = SET
-		case "Repeat":
+		case "Repeat", "repeat":
 			token = REPEAT
-		case "Same":
+		case "Same", "same":
 			if l.Peek() == '?' {
 				token = SAME
 				l.Next()
 			}
-		case "NotSame":
+		case "NotSame", "notSame":
 			if l.Peek() == '?' {
 				token = NOTSAME
 				l.Next()
 			}
-		case "Smaller":
+		case "Smaller", "smaller":
 			if l.Peek() == '?' {
 				token = SMALLER
 				l.Next()
 			}
-		case "NotSmaller":
+		case "NotSmaller", "notSmaller":
 			if l.Peek() == '?' {
 				token = NOTSMALLER
 				l.Next()
 			}
-		case "Command":
+		case "Command", "command":
 			token = COMMAND
-		case "Load":
+		case "Load", "load":
 			token = LOAD
-		case "Number":
+		case "Number", "number":
 			token = NUMBER
-		case "Value":
+		case "Value", "value":
 			token = VALUE
 		default:
 			token = IDENTIFIER
@@ -80,8 +80,6 @@ func (l *Lexer) Lex(lval *yySymType) int {
 		token = LT
 	case '>':
 		token = GT
-	case '+', '-', '*', '/':
-		token = OPERATOR
 	case '\n':
 		token = LF
 	case scanner.EOF:
