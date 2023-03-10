@@ -331,23 +331,13 @@ func colorPalette(img image.Image) color.Palette {
 
 func (e *Evaluator) loadBuiltins(env *Environment) {
 	for _, path := range []string{"dbnletters.dbn"} {
-		file, err := builtinsFS.Open("builtins/" + path)
-
-		if err != nil {
-			e.Errors = append(e.Errors, fmt.Sprintf("builtin file not found: %s", path))
-			continue
-		}
+		file, _ := builtinsFS.Open("builtins/" + path)
 
 		l := new(parser.Lexer)
 		l.Filename = path
 		l.Init(file)
 
 		parser.Parse(l)
-		e.Errors = append(e.Errors, l.Errors...)
-
-		if len(l.Errors) > 0 {
-			continue
-		}
 
 		e.evalStatements(l.Statements, env)
 	}
