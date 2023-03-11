@@ -5,3 +5,4 @@ tmp/*
 cover.out
 cover_broken.out
 coverage.html
+dist/
