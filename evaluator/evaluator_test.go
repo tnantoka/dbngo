@@ -7,7 +7,7 @@ import (
 	"image/color"
 	"image/gif"
 	"image/png"
-	"io/ioutil"
+	"io"
 	"os"
 	"strings"
 	"testing"
@@ -709,6 +709,63 @@ func TestGIF(t *testing.T) {
 	}
 }
 
+func TestBuiltins(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{
+			"letterA 10 10",
+			"letter.png",
+		},
+	}
+
+	for i, test := range tests {
+		e := New()
+		img := e.Eval(strings.NewReader(test.input), "test.dbn")
+
+		if len(e.Errors) > 0 {
+			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
+		}
+
+		actual := imageToBytes(t, img)
+		expected := readBytes(t, "../testdata/"+test.expected)
+
+		if !bytes.Equal(actual, expected) {
+			t.Errorf("test %d: expected %v, but got %v", i, expected, actual)
+		}
+	}
+}
+
+func TestExamples(t *testing.T) {
+	entries, err := os.ReadDir("../examples")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, entry := range entries {
+		e := New()
+
+		file, err := os.Open("../examples/" + entry.Name())
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		img := e.Eval(file, entry.Name())
+
+		if len(e.Errors) > 0 {
+			t.Errorf("test %v: expected no errors, got %v", entry.Name(), e.Errors)
+		}
+
+		actual := imageToBytes(t, img)
+		expected := readBytes(t, "../testdata/examples/"+strings.Replace(entry.Name(), ".dbn", ".png", 1))
+
+		if !bytes.Equal(actual, expected) {
+			t.Errorf("test %v: expected %v, but got %v", entry.Name(), expected, actual)
+		}
+	}
+}
+
 func imageToBytes(t *testing.T, img image.Image) []byte {
 	buf := new(bytes.Buffer)
 	err := png.Encode(buf, img)
@@ -748,6 +805,7 @@ func gifToBytes(t *testing.T, g *gif.GIF) []byte {
 
 	return buf.Bytes()
 }
+
 func readBytes(t *testing.T, path string) []byte {
 	t.Helper()
 
@@ -757,38 +815,10 @@ func readBytes(t *testing.T, path string) []byte {
 	}
 	defer file.Close()
 
-	bytes, err := ioutil.ReadAll(file)
+	bytes, err := io.ReadAll(file)
 	if err != nil {
 		t.Fatalf("failed to read file: %s", err)
 	}
 
 	return bytes
-}
-
-func TestBuiltins(t *testing.T) {
-	tests := []struct {
-		input    string
-		expected string
-	}{
-		{
-			"letterA 10 10",
-			"letter.png",
-		},
-	}
-
-	for i, test := range tests {
-		e := New()
-		img := e.Eval(strings.NewReader(test.input), "test.dbn")
-
-		if len(e.Errors) > 0 {
-			t.Errorf("test %d: expected no errors, got %v", i, e.Errors)
-		}
-
-		actual := imageToBytes(t, img)
-		expected := readBytes(t, "../testdata/"+test.expected)
-
-		if !bytes.Equal(actual, expected) {
-			t.Errorf("test %d: expected %v, but got %v", i, expected, actual)
-		}
-	}
 }

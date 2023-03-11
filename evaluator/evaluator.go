@@ -330,7 +330,7 @@ func colorPalette(img image.Image) color.Palette {
 }
 
 func (e *Evaluator) loadBuiltins(env *Environment) {
-	for _, path := range []string{"dbnletters.dbn"} {
+	for _, path := range []string{"dbnletters.dbn", "dbngraphics.dbn"} {
 		file, _ := builtinsFS.Open("builtins/" + path)
 
 		l := new(parser.Lexer)

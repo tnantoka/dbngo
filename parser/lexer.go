@@ -38,7 +38,7 @@ func (l *Lexer) Lex(lval *yySymType) int {
 				token = SAME
 				l.Next()
 			}
-		case "NotSame", "notSame":
+		case "NotSame", "notsame":
 			if l.Peek() == '?' {
 				token = NOTSAME
 				l.Next()
@@ -48,7 +48,7 @@ func (l *Lexer) Lex(lval *yySymType) int {
 				token = SMALLER
 				l.Next()
 			}
-		case "NotSmaller", "notSmaller":
+		case "NotSmaller", "notsmaller":
 			if l.Peek() == '?' {
 				token = NOTSMALLER
 				l.Next()

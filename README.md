@@ -22,6 +22,7 @@ Generate PNG adn GIF from `.dbn` files.
 - ~~Key~~
 - ~~Net~~
 - ~~Time~~
+- [ ] Array
 
 ## Built-in libraries
 
@@ -32,6 +33,44 @@ Generate PNG adn GIF from `.dbn` files.
 Command | DBN | dbngo
 --- | --- | ---
 Load | `Load lib.dbn` | `Load "lib.dbn"`
+
+## Examples
+
+- ~~amoebic~~
+- ~~bandedclock~~
+- [x] calculate
+- [x] commands
+- ~~dancinguy~~
+- ~~dancingy~~
+- [x] dots
+- ~~grainsofrain~~
+- ~~graymachine~~
+- ~~headsortails~~
+- ~~intersecting~~
+- [x] line
+- ~~looping~~
+- ~~meeber~~
+- ~~merging~~
+- ~~nervousguy~~
+- [ ] nesting1
+- [ ] nesting2
+- ~~painting~~
+- [x] paper
+- ~~paramecium~~
+- ~~plaid~~
+- ~~probing~~
+- ~~quantitative~~
+- [x] questions
+- ~~raininglines~~
+- ~~reactive~~
+- [x] repeating
+- [x] rocket2
+- ~~rockettime~~
+- ~~thehunt~~
+- ~~time1~~
+- ~~time2~~
+- ~~tuftball~~
+- [x] variable
 
 ## Development
 
