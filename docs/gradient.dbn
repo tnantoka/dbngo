@@ -1,0 +1,5 @@
+Repeat A 0 100 {
+  Pen A
+  Set Y (100 - A)
+  Line 0 Y 100 Y
+}

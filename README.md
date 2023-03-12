@@ -3,6 +3,25 @@
 A tiny [Design By Numbers](https://dbn.media.mit.edu/) clone written in Go.  
 Generate PNG adn GIF from `.dbn` files.
 
+## Example
+
+```
+// gradient.dbn
+
+Repeat A 0 100 {
+  Pen A
+  Set Y (100 - A)
+  Line 0 Y 100 Y
+}
+```
+
+```
+$ dbngo -i gradient.dbn -p gradient.png -g gradient.gif -s 2
+```
+
+![](docs/gradient.png)
+![](docs/gradient.gif)
+
 ## Live demo with wasm
 
 https://dbngo.tnantoka.com/
