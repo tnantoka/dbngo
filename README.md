@@ -75,8 +75,8 @@ Load | `Load lib.dbn` | `Load "lib.dbn"`
 - ~~meeber~~
 - ~~merging~~
 - ~~nervousguy~~
-- [ ] nesting1
-- [ ] nesting2
+- [x] nesting1
+- [x] nesting2
 - ~~painting~~
 - [x] paper
 - ~~paramecium~~
@@ -94,6 +94,7 @@ Load | `Load lib.dbn` | `Load "lib.dbn"`
 - ~~time2~~
 - ~~tuftball~~
 - [x] variable
+- [x] mitpress/*
 
 ## Development
 
