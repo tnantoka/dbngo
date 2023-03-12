@@ -13,7 +13,9 @@ const go = new Go();
   const select = document.querySelector('[data-js="select"]');
   const text = document.querySelector('[data-js="text"]');
   const run = document.querySelector('[data-js="run"]');
-  const image = document.querySelector('[data-js="image"]');
+  const imagePNG = document.querySelector('[data-js="image-png"]');
+  const imageGIF = document.querySelector('[data-js="image-gif"]');
+  const withGIF = document.querySelector('[data-js="with-gif"]');
   const errors = document.querySelector('[data-js="errors"]');
 
   examples.forEach((example) => {
@@ -31,20 +33,22 @@ const go = new Go();
   run.addEventListener('click', async (e) => {
     e.preventDefault();
 
-    image.src = '';
+    imagePNG.src = '';
+    imageGIF.src = '';
     errors.textContent = '';
 
-    const generated = generate(text.value);
-    console.log(generated);
-
-    if (/data:/.test(generated)) {
-      image.src = generated;
+    const generatedPNG = generatePNG(text.value);
+    if (/data:/.test(generatedPNG)) {
+      imagePNG.src = generatedPNG;
+      if (withGIF.checked) {
+        imageGIF.src = generateGIF(text.value);
+      }
     } else {
-      errors.textContent = generated;
+      errors.textContent = generatedPNG;
     }
   });
 
-  select.value = 'mitpress/112-2.dbn';
+  select.value = 'mitpress/194-2.dbn';
   select.dispatchEvent(new Event('change'));
   run.dispatchEvent(new Event('click'));
 })();

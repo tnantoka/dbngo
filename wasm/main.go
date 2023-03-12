@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"image/gif"
 	"image/png"
 	"strings"
 	"syscall/js"
@@ -12,7 +13,7 @@ import (
 )
 
 func main() {
-	js.Global().Set("generate", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+	js.Global().Set("generatePNG", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		defer func() {
 			if r := recover(); r != nil {
 				fmt.Println("Recovered from", r)
@@ -20,14 +21,25 @@ func main() {
 		}()
 
 		input := args[0].String()
-		return generate(input)
+		return generatePNG(input)
+	}))
+
+	js.Global().Set("generateGIF", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println("Recovered from", r)
+			}
+		}()
+
+		input := args[0].String()
+		return generateGIF(input)
 	}))
 
 	c := make(chan struct{})
 	<-c
 }
 
-func generate(input string) string {
+func generatePNG(input string) string {
 	e := evaluator.New()
 
 	img := e.Eval(strings.NewReader(input), "input")
@@ -44,5 +56,26 @@ func generate(input string) string {
 
 	encoded := base64.StdEncoding.EncodeToString(buf.Bytes())
 	dataURL := fmt.Sprintf("data:image/png;base64,%s", encoded)
+	return dataURL
+}
+
+func generateGIF(input string) string {
+	e := evaluator.New()
+	e.WithGIF = true
+
+	e.Eval(strings.NewReader(input), "input")
+
+	if len(e.Errors) > 0 {
+		return strings.Join(e.Errors, "\n")
+	}
+
+	buf := &bytes.Buffer{}
+	err := gif.EncodeAll(buf, e.GIF)
+	if err != nil {
+		return err.Error()
+	}
+
+	encoded := base64.StdEncoding.EncodeToString(buf.Bytes())
+	dataURL := fmt.Sprintf("data:image/gif;base64,%s", encoded)
 	return dataURL
 }
