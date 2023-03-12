@@ -1,0 +1,23 @@
+Paper 0
+
+Pen 100
+
+Set X 17
+Set Y 73
+Set DX 12
+Set DY 12
+Set N 0
+
+Repeat A 1 25 {
+  letter A X Y 
+  Set X (X+DX)
+  Set N (N+1)
+  Same? N 5 {
+    Set X 17
+    Set Y (Y-DY)
+    Set N 0
+  }
+}
+
+Set X (X+DX*5)
+letter 26 X Y

@@ -1,0 +1,7 @@
+Paper 25
+
+Repeat B 0 50 {
+  Repeat A 0 50 {
+    Set [(A*2) (B*2)] 75
+  }
+}

@@ -1,0 +1,6 @@
+Paper 0
+
+Repeat A 0 100 {
+  Pen A
+  Line 0 A 100 A
+}

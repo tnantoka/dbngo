@@ -1,0 +1,9 @@
+Paper 0
+
+Repeat C 1 4 {
+  Repeat B 0 25 {
+    Repeat A 0 25 {
+      Set [(A*C) (B*C)] (C * 25)
+    }
+  }
+}

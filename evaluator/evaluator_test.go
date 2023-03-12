@@ -738,32 +738,41 @@ func TestBuiltins(t *testing.T) {
 }
 
 func TestExamples(t *testing.T) {
-	entries, err := os.ReadDir("../examples")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	for _, entry := range entries {
-		e := New()
-
-		file, err := os.Open("../examples/" + entry.Name())
+	var testDirectory func(string)
+	testDirectory = func(dir string) {
+		entries, err := os.ReadDir("../examples" + dir)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		img := e.Eval(file, entry.Name())
+		for _, entry := range entries {
+			if entry.IsDir() {
+				testDirectory(dir + entry.Name() + "/")
+				continue
+			}
 
-		if len(e.Errors) > 0 {
-			t.Errorf("test %v: expected no errors, got %v", entry.Name(), e.Errors)
-		}
+			e := New()
 
-		actual := imageToBytes(t, img)
-		expected := readBytes(t, "../testdata/examples/"+strings.Replace(entry.Name(), ".dbn", ".png", 1))
+			file, err := os.Open("../examples" + dir + entry.Name())
+			if err != nil {
+				t.Fatal(err)
+			}
 
-		if !bytes.Equal(actual, expected) {
-			t.Errorf("test %v: expected %v, but got %v", entry.Name(), expected, actual)
+			img := e.Eval(file, entry.Name())
+
+			if len(e.Errors) > 0 {
+				t.Errorf("test %v: expected no errors, got %v", entry.Name(), e.Errors)
+			}
+
+			actual := imageToBytes(t, img)
+			expected := readBytes(t, "../testdata/examples"+dir+strings.Replace(entry.Name(), ".dbn", ".png", 1))
+
+			if !bytes.Equal(actual, expected) {
+				t.Errorf("test %v: expected %v, but got %v", entry.Name(), expected, actual)
+			}
 		}
 	}
+	testDirectory("/")
 }
 
 func imageToBytes(t *testing.T, img image.Image) []byte {

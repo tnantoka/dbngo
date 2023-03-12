@@ -27,7 +27,6 @@ const go = new Go();
     const example = examples.find((example) => example.name === select.value);
     text.value = example.content;
   });
-  select.dispatchEvent(new Event('change'));
 
   run.addEventListener('click', async (e) => {
     e.preventDefault();
@@ -44,4 +43,8 @@ const go = new Go();
       errors.textContent = generated;
     }
   });
+
+  select.value = 'mitpress/112-2.dbn';
+  select.dispatchEvent(new Event('change'));
+  run.dispatchEvent(new Event('click'));
 })();

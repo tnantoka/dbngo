@@ -11,4 +11,5 @@ cp -r ../examples ./examples
 
 cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" .
 GOOS=js GOARCH=wasm go build -o main.wasm main.go
-echo "const examples = [$(ls ../examples | awk '{ print "{ \"name\": \"" $1 "\" }," }')];" > examples.js
+echo "const examples = [$(ls ../examples | awk '{ print "{ \"name\": \"" $1 "\" }," }')" > examples.js
+echo "$(ls ../examples/mitpress | awk '{ print "{ \"name\": \"mitpress/" $1 "\" }," }')];" >> examples.js

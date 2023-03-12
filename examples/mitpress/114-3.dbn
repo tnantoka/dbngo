@@ -1,0 +1,11 @@
+Paper 0
+
+Set H 50
+Set V 30
+Set R 20
+
+Repeat A 0 100 {
+  Repeat B 0 100 {
+    Set [A B] (((A-H)*(A-H)+(B-V)*(B-V))/R)
+  }
+}

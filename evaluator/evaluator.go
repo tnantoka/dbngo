@@ -140,7 +140,7 @@ func (e *Evaluator) evalSetStatement(statement *parser.SetStatement, env *Enviro
 func (e *Evaluator) evalDotStatement(statement *parser.DotStatement, env *Environment) {
 	x := e.evalNumber(statement.X, env)
 	y := 100 - e.evalNumber(statement.Y, env)
-	e.img.Set(x, y, e.color)
+	e.img.Set(x, y, e.evalColor(statement.Value, env))
 	e.addGIFFrame()
 }
 
