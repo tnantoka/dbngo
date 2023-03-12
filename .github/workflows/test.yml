@@ -21,7 +21,7 @@ jobs:
       run: |
         go install golang.org/x/tools/cmd/goyacc@latest
         goyacc -o parser/parser.go parser/parser.go.y
-        go test -v ./... -coverprofile=cover_broken.out
+        go test $(go list ./... | grep -v /wasm) -coverprofile=cover_broken.out
         cat cover_broken.out | grep -v yaccpar | grep -v .y > cover.out
 
     - name: Coverage

@@ -5,4 +5,11 @@ tmp/*
 cover.out
 cover_broken.out
 coverage.html
+
+# Release
 dist/
+
+# Wasm
+wasm/examples*
+*.wasm
+wasm_exec.js

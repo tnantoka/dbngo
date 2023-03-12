@@ -3,6 +3,10 @@
 A tiny [Design By Numbers](https://dbn.media.mit.edu/) clone written in Go.  
 Generate PNG adn GIF from `.dbn` files.
 
+## Live demo with wasm
+
+https://dbngo.tnantoka.com/
+
 ## Commands
 
 - [x] Paper
@@ -81,7 +85,7 @@ $ goyacc -o parser/parser.go parser/parser.go.y
 
 $ go fmt ./...
 
-$ go test ./... -coverprofile=cover_broken.out && \
+$ go test $(go list ./... | grep -v /wasm) -coverprofile=cover_broken.out && \
   cat cover_broken.out | grep -v yaccpar | grep -v .y > cover.out && \
   go tool cover -html=cover.out -o coverage.html
 

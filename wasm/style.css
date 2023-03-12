@@ -1,0 +1,5 @@
+select,
+textarea,
+button {
+  border-radius: 0 !important;
+}
