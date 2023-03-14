@@ -682,18 +682,26 @@ func TestNumber(t *testing.T) {
 
 func TestGIF(t *testing.T) {
 	tests := []struct {
-		input    string
-		expected string
+		input     string
+		expected  string
+		MaxFrames int
 	}{
 		{
 			"Repeat C 0 10 { Paper C }",
 			"gradation.gif",
+			0,
+		},
+		{
+			"Repeat C 0 10 { Paper C }",
+			"gradation-half.gif",
+			5,
 		},
 	}
 
 	for i, test := range tests {
 		e := New()
 		e.WithGIF = true
+		e.MaxFrames = test.MaxFrames
 		e.Eval(strings.NewReader(test.input), "test.dbn")
 
 		if len(e.Errors) > 0 {

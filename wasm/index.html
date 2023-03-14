@@ -32,13 +32,15 @@
         <textarea class="form-control border-top-0" rows="10" data-js="text"></textarea>
       </div>
 
-      <div class="mt-3 d-flex align-items-center">
+      <div class="mt-3">
         <button class="btn btn-dark" data-js="run">Run</button>
-        <div class="ms-3 form-check">
-          <input type="checkbox" class="form-check-input" data-js="with-gif" checked>
-          <label class="form-check-label" for="exampleCheck1">GIF</label>
-        </div>
       </div>
+
+      <div class="mt-3 form-check">
+        <input type="checkbox" class="form-check-input" data-js="with-gif" checked>
+        <label class="form-check-label" for="exampleCheck1">GIF</label><br>
+      </div>
+      <p class="text-muted fst-italic small">Limited to 200 frames to avoid hangs on wasm.</p>
     </form>
 
     <div class="mt-3">

@@ -62,6 +62,7 @@ func generatePNG(input string) string {
 func generateGIF(input string) string {
 	e := evaluator.New()
 	e.WithGIF = true
+	e.MaxFrames = 200
 
 	e.Eval(strings.NewReader(input), "input")
 

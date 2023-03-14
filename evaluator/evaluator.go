@@ -29,10 +29,11 @@ type Evaluator struct {
 	Scale     int
 	Directory string
 	WithGIF   bool
+	MaxFrames int
 }
 
 func New() *Evaluator {
-	return &Evaluator{length: DEFAULT_LENGTH, color: color.RGBA{0, 0, 0, 255}, Scale: 1, Directory: "", WithGIF: false}
+	return &Evaluator{length: DEFAULT_LENGTH, color: color.RGBA{0, 0, 0, 255}, Scale: 1, Directory: "", WithGIF: false, MaxFrames: 0}
 }
 
 func (e *Evaluator) Eval(input io.Reader, path string) image.Image {
@@ -294,6 +295,10 @@ func (e *Evaluator) evalNumber(expression parser.Expression, env *Environment) i
 
 func (e *Evaluator) addGIFFrame() {
 	if !e.WithGIF {
+		return
+	}
+
+	if e.MaxFrames > 0 && len(e.GIF.Image) >= e.MaxFrames {
 		return
 	}
 
